@@ -1,0 +1,16 @@
+{
+  "$comment": "CI gate: every eligible process filed twice, fast decision policy, then a drain window. Must end 100% terminal with zero unknown violations.",
+  "actors": { "executor": "per-process", "perProcess": 2, "vus": 4, "maxDuration": "5m" },
+  "followups": { "rate": 4, "timeUnit": "1s", "preAllocatedVUs": 4, "maxVUs": 12, "duration": "7m" },
+  "browsers": { "vus": 1, "duration": "5m" },
+  "probeRate": 0.5,
+  "policyOverride": { "default": { "approve": 0.7, "reject": 0.15, "request_info": 0.15, "thinkTime": { "kind": "uniform", "minMs": 100, "maxMs": 500 } }, "probeRate": 0.2 },
+  "thresholds": {
+    "http_req_failed{lt:app}": ["rate<0.01"],
+    "http_req_duration{name:POST /submissions}": ["p(95)<1500"],
+    "http_req_duration{name:GET /forms/{id}}": ["p(95)<500"],
+    "lt_probe_failed": ["rate==0"],
+    "lt_unexpected_status": ["rate<0.01"],
+    "checks{lt:app}": ["rate>0.99"]
+  }
+}

@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fixit-plugin/item",
+  "title": "Tracker item",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "severity",
+    "kind",
+    "stage",
+    "plan",
+    "history"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9]*-\\d{2,}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string"
+    },
+    "impact": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "unrated"
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "bug",
+        "todo",
+        "stub",
+        "gap",
+        "debt",
+        "test-gap",
+        "perf",
+        "feature",
+        "validation",
+        "hardening"
+      ]
+    },
+    "wave": {
+      "type": "string"
+    },
+    "workstream": {
+      "type": "string"
+    },
+    "component": {
+      "type": "string"
+    },
+    "cluster": {
+      "type": "string"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "backlog",
+        "planning",
+        "plan_review",
+        "approved",
+        "building",
+        "in_review",
+        "done",
+        "blocked",
+        "wont_do"
+      ]
+    },
+    "dependsOn": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "pinnedBy": {
+      "type": "string"
+    },
+    "acceptance": {
+      "type": "string"
+    },
+    "registerKey": {
+      "type": "string"
+    },
+    "fingerprint": {
+      "type": "string"
+    },
+    "plan": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "approvedAt": {
+          "type": "string"
+        },
+        "approvedBy": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "summary",
+        "approvedAt",
+        "approvedBy"
+      ]
+    },
+    "note": {
+      "type": "string"
+    },
+    "order": {
+      "type": "number"
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "by": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "at"
+        ]
+      }
+    },
+    "updatedAt": {
+      "type": "string"
+    },
+    "updatedBy": {
+      "type": "string"
+    }
+  },
+  "$comment": "Gate invariant (enforced by remedy.cjs validate): stage in {building,in_review,done,approved} requires plan.approvedAt; stage in {plan_review,approved,building,in_review,done} requires plan.path."
+}

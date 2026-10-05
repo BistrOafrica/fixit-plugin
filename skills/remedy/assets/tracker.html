@@ -1,0 +1,518 @@
+<title>Remediation Tracker</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<!--REMEDY_DATA-->
+<style>
+:root{
+  color-scheme: light;
+  --ground:#f3f5f4; --surface:#fcfcfb; --raised:#ffffff; --sunk:#eaeeeb;
+  --ink:#121916; --ink-2:#46504b; --muted:#747e79; --hair:#dce1dd; --axis:#c2c8c3;
+  --accent:#1d4f73; --accent-soft:#e2ecf4;
+  --st-backlog:#d5dcd8; --st-planning:#a9c8e6; --st-plan_review:#f2b53a; --st-approved:#5e9fd6;
+  --st-building:#2f74b8; --st-in_review:#1d4f73; --st-done:#127a4a; --st-blocked:#b64a3a; --st-wont_do:#9aa39e;
+  --rs-open:transparent; --rs-in_progress:#2a78d6; --rs-fix_in_review:#1baf7a; --rs-fixed:#127a4a; --rs-wont_fix:#c9cfca;
+  --good:#127a4a; --warn:#b77b00; --critical:#c23434; --serious:#d9703f; --med:#e0a21a;
+  --crit-bg:#fbeceb; --high-bg:#fdf0e8; --med-bg:#fdf6e2; --low-bg:#eef1ef; --gate-bg:#fff6df;
+  --scrim:rgba(18,25,22,.28);
+  --display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#0d110f; --surface:#151a17; --raised:#1b211e; --sunk:#111512;
+    --ink:#eef2ef; --ink-2:#bac3be; --muted:#87908b; --hair:#29302c; --axis:#3a423d;
+    --accent:#8fc0e6; --accent-soft:#1a2934;
+    --st-backlog:#3a423d; --st-planning:#2c4f6e; --st-plan_review:#c99124; --st-approved:#3f7fb8;
+    --st-building:#5a9ad6; --st-in_review:#8fc0e6; --st-done:#2ea56b; --st-blocked:#d0604e; --st-wont_do:#56605a;
+    --rs-in_progress:#3987e5; --rs-fix_in_review:#199e70; --rs-fixed:#2ea56b; --rs-wont_fix:#454d48;
+    --good:#3cc07f; --warn:#f0b94a; --critical:#f07a7a; --serious:#ec8f63; --med:#f0bf4a;
+    --crit-bg:#351b1b; --high-bg:#33231a; --med-bg:#302a17; --low-bg:#1f2522; --gate-bg:#2e2715;
+    --scrim:rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0d110f; --surface:#151a17; --raised:#1b211e; --sunk:#111512;
+  --ink:#eef2ef; --ink-2:#bac3be; --muted:#87908b; --hair:#29302c; --axis:#3a423d;
+  --accent:#8fc0e6; --accent-soft:#1a2934;
+  --st-backlog:#3a423d; --st-planning:#2c4f6e; --st-plan_review:#c99124; --st-approved:#3f7fb8;
+  --st-building:#5a9ad6; --st-in_review:#8fc0e6; --st-done:#2ea56b; --st-blocked:#d0604e; --st-wont_do:#56605a;
+  --rs-in_progress:#3987e5; --rs-fix_in_review:#199e70; --rs-fixed:#2ea56b; --rs-wont_fix:#454d48;
+  --good:#3cc07f; --warn:#f0b94a; --critical:#f07a7a; --serious:#ec8f63; --med:#f0bf4a;
+  --crit-bg:#351b1b; --high-bg:#33231a; --med-bg:#302a17; --low-bg:#1f2522; --gate-bg:#2e2715;
+  --scrim:rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:clamp(16px,4vw,36px);padding-block:32px 72px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:clamp(32px,4.6vw,46px);font-weight:700;line-height:1.02}
+h2{font-size:21px;font-weight:600}
+h3{font-size:15px;font-weight:600}
+p{margin:0;max-width:72ch}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--mono)}
+code{font-family:var(--mono);font-size:.86em;background:var(--accent-soft);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+a{color:var(--accent)}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header.top{display:grid;gap:12px;padding-bottom:22px;border-bottom:1px solid var(--hair)}
+.lede{color:var(--ink-2);font-size:16px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:13px;color:var(--ink-2)}
+.meta b{font-family:var(--mono);font-weight:500;color:var(--ink)}
+.banner{padding:10px 14px;border-radius:8px;background:var(--med-bg);font-size:13.5px}
+.pipe{margin-top:24px;display:grid;gap:10px}
+.pipe-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--hair);border-radius:10px;overflow:hidden;background:var(--surface)}
+.pst{padding:12px 14px;display:grid;gap:2px;border:0;border-left:1px solid var(--hair);cursor:pointer;background:transparent;text-align:left}
+.pst:first-child{border-left:0}
+.pst:hover{background:var(--sunk)}
+.pst[aria-pressed="true"]{background:var(--accent-soft)}
+.pst .n{font-family:var(--display);font-size:30px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.pst .l{font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:6px}
+.pst .l i{width:9px;height:9px;border-radius:2px;display:inline-block}
+.pst.gate{border-left:3px double var(--warn)}
+.pst.attn .n{color:var(--warn)}
+.side{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--ink-2)}
+.side button{border:1px solid var(--hair);background:var(--raised);border-radius:999px;padding:4px 12px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.side button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.side i{width:9px;height:9px;border-radius:2px;display:inline-block}
+@media (max-width:820px){.pipe-row{grid-template-columns:repeat(4,minmax(0,1fr))}.pst:nth-child(5){border-left:0}.pst{border-top:1px solid var(--hair)}.pst:nth-child(-n+4){border-top:0}}
+@media (max-width:460px){.pipe-row{grid-template-columns:repeat(2,minmax(0,1fr))}.pst:nth-child(odd){border-left:0}.pst:nth-child(-n+2){border-top:0}.pst:nth-child(n+3){border-top:1px solid var(--hair)}.pst .n{font-size:24px}}
+.waves{margin-top:22px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:900px){.waves{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.waves{grid-template-columns:1fr}}
+.wave{background:var(--surface);border:1px solid var(--hair);border-radius:10px;padding:14px 16px;display:grid;gap:8px;cursor:pointer;text-align:left}
+.wave:hover{border-color:var(--axis)}
+.wave[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:-2px}
+.wave .wh{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.wave .wid{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.wave .wn{font-family:var(--display);font-weight:600;font-size:17px}
+.wave .why{font-size:12.5px;color:var(--ink-2)}
+.wave .wc{font-family:var(--mono);font-size:12px;color:var(--ink-2);white-space:nowrap}
+.bar{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:1px;background:var(--sunk)}
+.bar span{display:block;height:100%}
+.toolbar{position:sticky;top:0;z-index:3;background:var(--ground);padding-block:12px;margin-top:26px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;border-bottom:1px solid var(--hair)}
+.tabs{display:flex;border:1px solid var(--hair);border-radius:8px;overflow:hidden;background:var(--raised)}
+.tabs button{border:0;background:transparent;padding:7px 14px;cursor:pointer;font-size:13.5px;color:var(--ink-2)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--surface)}
+.search{flex:1 1 200px;min-width:0;display:flex}
+.search input{width:100%;padding:7px 12px;border:1px solid var(--hair);border-radius:8px;background:var(--raised)}
+.sel-ctl{padding:7px 10px;border:1px solid var(--hair);border-radius:8px;background:var(--raised);font-size:13px;max-width:100%}
+.count{font-size:13px;color:var(--muted);margin-left:auto}
+.clear{border:0;background:none;color:var(--accent);cursor:pointer;font-size:13px;padding:4px}
+.sev{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.sev::before{content:"";width:7px;height:7px;border-radius:50%}
+.sev.critical{background:var(--crit-bg)}.sev.critical::before{background:var(--critical)}
+.sev.high{background:var(--high-bg)}.sev.high::before{background:var(--serious)}
+.sev.medium{background:var(--med-bg)}.sev.medium::before{background:var(--med)}
+.sev.low{background:var(--low-bg)}.sev.low::before{background:var(--muted)}
+.sev.unrated{background:var(--sunk)}.sev.unrated::before{background:transparent;border:1.5px dashed var(--muted)}
+.stg{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap}
+.stg i{width:10px;height:10px;border-radius:3px;display:inline-block;flex:none}
+.rst i{border-radius:50%;border:1.5px solid var(--ink-2)}
+.tag{font-family:var(--mono);font-size:11px;color:var(--ink-2);background:var(--sunk);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.tag.gate-ok{background:color-mix(in oklab,var(--good) 16%,transparent);color:var(--good)}
+.board-scroll{overflow-x:auto;margin-top:18px;padding-bottom:8px}
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:12px;min-width:min-content}
+.col{background:var(--sunk);border-radius:10px;padding:10px;display:grid;gap:8px;align-content:start;min-height:120px}
+.col-h{display:flex;justify-content:space-between;align-items:center;padding:2px 4px 4px;font-size:13px;font-weight:600}
+.col-h .n{font-family:var(--mono);font-weight:500;color:var(--muted)}
+.col.gate{box-shadow:inset 0 3px 0 var(--warn)}
+.card{background:var(--surface);border:1px solid var(--hair);border-radius:8px;padding:10px 12px;display:grid;gap:6px;cursor:pointer;text-align:left;width:100%}
+.card:hover{border-color:var(--axis)}
+.card .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.card .id{font-family:var(--mono);font-size:12px;color:var(--ink-2)}
+.card .t{font-size:13.5px;font-weight:500;line-height:1.35}
+.card .tags{display:flex;gap:5px;flex-wrap:wrap}
+.empty-col{font-size:12.5px;color:var(--muted);padding:6px 4px}
+.group{margin-top:22px;display:grid;gap:8px}
+.group-h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.group-h .n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.group-h .why{font-size:13px;color:var(--ink-2)}
+.rows{background:var(--surface);border:1px solid var(--hair);border-radius:10px;overflow:hidden}
+.row{display:grid;grid-template-columns:76px 86px minmax(0,1fr) 140px 128px;gap:12px;align-items:center;padding:10px 14px;border:0;border-top:1px solid var(--hair);cursor:pointer;background:transparent;text-align:left;width:100%}
+.row:first-child{border-top:0}
+.row:hover{background:var(--sunk)}
+.row .id{font-family:var(--mono);font-size:12.5px;color:var(--ink-2)}
+.row .ttl{font-weight:500;line-height:1.35}
+.row .sub{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:2px}
+.row .cl{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:760px){.row{grid-template-columns:64px 1fr;gap:4px 10px}.row .sevcell{grid-column:2;grid-row:1}.row .ttl{grid-column:1/-1}.row .cl{grid-column:1}.row .stcell{grid-column:2}}
+.clusters{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.cluster{background:var(--surface);border:1px solid var(--hair);border-radius:10px;padding:14px 16px;display:grid;gap:10px;align-content:start}
+.cluster .ch{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.cluster .cid{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.cluster ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.cluster li button{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;text-align:left;background:transparent;border:0;padding:4px 2px;border-radius:5px;cursor:pointer;font-size:13px}
+.cluster li button:hover{background:var(--sunk)}
+.cluster li .id{font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
+.cluster li .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.howto{margin-top:40px;display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+@media (max-width:860px){.howto{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--hair);border-radius:10px;padding:16px 18px;display:grid;gap:10px;align-content:start}
+.panel ol{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14px}
+.panel p{font-size:13.5px;color:var(--ink-2)}
+.cmd{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cmd code{font-size:13px;padding:4px 8px}
+.empty{padding:40px 16px;text-align:center;color:var(--muted)}
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:9}
+.drawer{position:fixed;z-index:10;top:0;right:0;bottom:0;width:min(600px,100%);background:var(--surface);border-left:1px solid var(--hair);overflow-y:auto;padding:18px 24px 28px;display:grid;gap:16px;align-content:start;box-shadow:-12px 0 40px rgba(0,0,0,.12)}
+.drawer .x{justify-self:end;border:1px solid var(--hair);background:var(--raised);border-radius:8px;padding:4px 10px;cursor:pointer}
+.drawer h2{font-size:23px;line-height:1.15}
+.dl{display:grid;gap:12px}
+.dl .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.dl .v{font-size:14px}
+.dl ul{margin:2px 0 0;padding-left:18px;display:grid;gap:3px;font-family:var(--mono);font-size:12px;color:var(--ink-2);overflow-wrap:anywhere}
+.linkbtn{border:0;background:none;color:var(--accent);cursor:pointer;padding:0;font:inherit;text-decoration:underline}
+.gatebox{border:1px solid var(--hair);border-radius:10px;padding:14px;display:grid;gap:10px;background:var(--raised)}
+.gatebox.pending{background:var(--gate-bg);border-color:color-mix(in oklab,var(--warn) 45%,var(--hair))}
+.gatebox .gs{font-size:13.5px}
+.edit{display:grid;gap:10px}
+.edit label{font-size:12.5px;color:var(--ink-2);display:grid;gap:5px}
+.edit select,.edit textarea,.edit input{padding:8px 10px;border:1px solid var(--hair);border-radius:8px;background:var(--raised)}
+.edit textarea{min-height:72px;resize:vertical}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{background:var(--ink);color:var(--surface);border:0;border-radius:8px;padding:8px 16px;cursor:pointer;font-weight:500}
+.btn.sec{background:var(--raised);color:var(--ink);border:1px solid var(--hair)}
+.btn.ok{background:var(--good);color:#fff}
+.btn[disabled]{opacity:.5;cursor:default}
+.msg{font-size:13px;color:var(--ink-2);min-height:1em}
+.msg.err{color:var(--critical)}
+.hist{display:grid;gap:5px;font-size:12.5px;color:var(--ink-2)}
+.hist div{display:flex;gap:8px;flex-wrap:wrap}
+.hist b{font-weight:500;color:var(--ink)}
+.cli{display:grid;gap:6px}
+.cli code{display:block;padding:8px 10px;font-size:12px;white-space:pre-wrap}
+.footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--hair);font-size:12.5px;color:var(--muted);display:grid;gap:6px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow" id="eyebrow">Remediation programme</div>
+    <h1 id="h-title">Remediation Tracker</h1>
+    <p class="lede" id="lede">Every confirmed defect and pending engineering TODO as one queue of work. Each item gets its own planning run and its own approval; nothing moves into Building until an owner has approved its plan.</p>
+    <div class="meta"><span id="meta-mode"></span><span id="meta-counts"></span><span id="meta-updated"></span></div>
+    <div class="banner" id="banner" hidden></div>
+  </header>
+
+  <section class="pipe" aria-label="Items by stage">
+    <div class="pipe-row" id="pipe"></div>
+    <div class="side" id="side"></div>
+  </section>
+  <section class="waves" id="waves" aria-label="Waves"></section>
+
+  <div class="toolbar" role="search">
+    <div class="tabs" role="tablist" aria-label="View">
+      <button role="tab" data-v="board" aria-selected="true">Board</button>
+      <button role="tab" data-v="table" aria-selected="false">Table</button>
+      <button role="tab" data-v="clusters" aria-selected="false">Clusters</button>
+      <button role="tab" data-v="register" aria-selected="false">Register</button>
+    </div>
+    <div class="search"><input id="q" type="search" placeholder="Search id, title, file…" aria-label="Search"></div>
+    <select id="f-sev" class="sel-ctl" aria-label="Severity"></select>
+    <select id="f-ws" class="sel-ctl" aria-label="Workstream"></select>
+    <select id="f-kind" class="sel-ctl" aria-label="Kind"></select>
+    <button class="clear" id="clear" type="button">Clear filters</button>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div id="view"><div class="empty" id="loading">Loading…</div></div>
+
+  <section class="howto" aria-label="How to use this tracker">
+    <div class="panel">
+      <h3>How an item moves</h3>
+      <ol id="protocol"></ol>
+      <div class="cmd"><span class="mono" style="font-size:12px;color:var(--muted)">In Claude Code</span><code>/fixit-plugin:plan SEC-01</code><code>/fixit-plugin:plan cluster AUTH</code><code>/fixit-plugin:build SEC-01</code></div>
+    </div>
+    <div class="panel">
+      <h3>Not tracked here</h3>
+      <p id="excluded">Nothing excluded.</p>
+      <p>Register rows share keys with tracker items, so <b>SEC-01</b> in the tracker is <b>SEC-01</b> in the register. When an item reaches Done its register row becomes Fixed.</p>
+    </div>
+  </section>
+  <div class="footer">
+    <span>Stages: Backlog → Planning → Plan review → <b>Approved ▸ gate</b> → Building → In review → Done. Blocked and Won't do sit outside the flow.</span>
+    <span>Severity: Critical — exploitable now. High — wrong decisions, data exposure or a broken core flow. Medium — incorrect behaviour with a workaround. Low — cosmetic, tooling or hygiene. Unrated — awaiting validation.</span>
+    <span>Built with fixit-plugin.</span>
+  </div>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-modal="true" role="dialog" aria-labelledby="d-title"></aside>
+
+<script>
+const STAGES = [["backlog","Backlog"],["planning","Planning"],["plan_review","Plan review"],["approved","Approved"],["building","Building"],["in_review","In review"],["done","Done"]];
+const SIDE = [["blocked","Blocked"],["wont_do","Won't do"]];
+const ALL_STAGES = [...STAGES, ...SIDE];
+const ST_LABEL = Object.fromEntries(ALL_STAGES);
+const PAST_GATE = new Set(["building","in_review","done"]);
+const SEVS = ["critical","high","medium","low","unrated"];
+const SEV_LABEL = {critical:"Critical",high:"High",medium:"Medium",low:"Low",unrated:"Unrated"};
+const KIND_LABEL = {bug:"Bug",todo:"TODO",stub:"Stub",gap:"Gap",debt:"Debt","test-gap":"Test gap",perf:"Performance",feature:"Feature",validation:"Needs validation",hardening:"Hardening"};
+const RSTAT = [["open","Open"],["in_progress","In progress"],["fix_in_review","Fix in review"],["fixed","Fixed"],["wont_fix","Won't fix"]];
+const RS_LABEL = Object.fromEntries(RSTAT);
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+const stColor = s => `var(--st-${s})`;
+const fmtDate = iso => { if (!iso) return ""; try { return new Date(iso).toLocaleString(undefined,{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}); } catch { return iso; } };
+
+const STATIC = window.__REMEDY_DATA__ || null;
+let items = [], bugs = [], meta = null;
+let db = null, user = null, myId = null, canApprove = false, readOnly = true, names = {};
+const f = { q:"", sev:"all", ws:"all", kind:"all", stage:"all", wave:"all" };
+let view = "board", openId = null;
+const PREFS = "remedy-tracker-prefs";
+try { const p = JSON.parse(localStorage.getItem(PREFS) || "{}"); if (p.view) view = p.view; } catch {}
+const h0 = (location.hash || "").slice(1); if (["board","table","clusters","register"].includes(h0)) view = h0;
+
+(async () => {
+  if (STATIC) {
+    meta = STATIC.meta || {}; items = STATIC.items || []; bugs = STATIC.bugs || [];
+    $("#meta-mode").innerHTML = `Snapshot <b>${esc(fmtDate(STATIC.generatedAt))}</b> · read-only — change it with the remedy CLI`;
+    renderStatic(); render(); return;
+  }
+  const use = window.claude?.use;
+  if (!use) { banner("No data: open this page from its claude.ai link, or render it with `remedy render`."); $("#loading").textContent = "Nothing to show."; return; }
+  [db, user] = await Promise.all([use("db"), use("user")]);
+  if (!db) { banner("The live tracker could not load in this view. Reopen the page."); return; }
+  if (user) {
+    myId = await user.id();
+    const cw = await user.can("data.write");
+    readOnly = cw === false;
+    canApprove = !readOnly && ((await user.canEdit()) || (await user.isOwner()));
+  } else readOnly = false;
+  $("#meta-mode").innerHTML = `Live · ${readOnly ? "read-only for you" : canApprove ? "you can approve plans" : "you can update status"}`;
+  db.doc("meta/protocol").onSnapshot(s => { meta = s.exists ? s.data() : {}; renderStatic(); render(); }, () => {});
+  db.collection("items").orderBy("order").onSnapshot(snap => { items = snap.docs.map(d => ({...d.data(), _id: d.id})); render(); if (openId) refreshDrawer(); },
+    e => banner(e?.code === "revoked" ? "Your access changed. Reload to continue." : "The tracker stopped updating. Reload to reconnect."));
+  db.collection("bugs").orderBy("order").onSnapshot(snap => { bugs = snap.docs.map(d => ({...d.data(), _id: d.id})); render(); }, () => {});
+})();
+
+function banner(t){ const b = $("#banner"); b.textContent = t; b.hidden = false; }
+function renderStatic(){
+  if (!meta) return;
+  document.title = meta.title || "Remediation Tracker";
+  $("#h-title").textContent = meta.title || "Remediation Tracker";
+  $("#eyebrow").textContent = [meta.project, meta.subtitle].filter(Boolean).join(" · ") || "Remediation programme";
+  if (meta.lede) $("#lede").textContent = meta.lede;
+  $("#protocol").innerHTML = (meta.protocol || []).map(s => `<li>${esc(s)}</li>`).join("");
+  $("#excluded").textContent = meta.excluded || "Nothing excluded.";
+}
+
+/* controls */
+$("#f-sev").innerHTML = `<option value="all">All severities</option>` + SEVS.map(s => `<option value="${s}">${SEV_LABEL[s]}</option>`).join("");
+$("#f-kind").innerHTML = `<option value="all">All kinds</option>` + Object.entries(KIND_LABEL).map(([k,l]) => `<option value="${k}">${l}</option>`).join("");
+$("#f-sev").addEventListener("change", e => { f.sev = e.target.value; render(); });
+$("#f-ws").addEventListener("change", e => { f.ws = e.target.value; render(); });
+$("#f-kind").addEventListener("change", e => { f.kind = e.target.value; render(); });
+$("#q").addEventListener("input", e => { f.q = e.target.value; render(); });
+$("#clear").addEventListener("click", () => { Object.assign(f,{q:"",sev:"all",ws:"all",kind:"all",stage:"all",wave:"all"}); $("#q").value=""; render(); });
+document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { view = b.dataset.v; try { localStorage.setItem(PREFS, JSON.stringify({view})); } catch {} render(); }));
+$("#pipe").addEventListener("click", e => { const b = e.target.closest("[data-st]"); if (!b) return; f.stage = f.stage === b.dataset.st ? "all" : b.dataset.st; if (view === "register") view = "board"; render(); });
+$("#side").addEventListener("click", e => { const b = e.target.closest("[data-st]"); if (!b) return; f.stage = f.stage === b.dataset.st ? "all" : b.dataset.st; render(); });
+$("#waves").addEventListener("click", e => { const b = e.target.closest("[data-w]"); if (!b) return; f.wave = f.wave === b.dataset.w ? "all" : b.dataset.w; render(); });
+$("#view").addEventListener("click", e => { const b = e.target.closest("[data-id]"); if (b) openDrawer(b.dataset.id); const r = e.target.closest("[data-key]"); if (r) openRow(r.dataset.key); });
+
+function visible(){
+  const q = f.q.trim().toLowerCase();
+  return items.filter(i => (f.sev === "all" || i.severity === f.sev) && (f.ws === "all" || i.workstream === f.ws) &&
+    (f.kind === "all" || i.kind === f.kind) && (f.stage === "all" || i.stage === f.stage) && (f.wave === "all" || i.wave === f.wave) &&
+    (!q || [i.id,i.title,i.summary,(i.sources||[]).join(" "),i.pinnedBy,i.cluster,i.component,i.note,i.plan?.path].join(" ").toLowerCase().includes(q)));
+}
+function stagePill(s){ return `<span class="stg"><i style="background:${stColor(s)}"></i>${esc(ST_LABEL[s] ?? s)}</span>`; }
+function rsPill(s){ return `<span class="stg rst"><i style="background:var(--rs-${s})"></i>${esc(RS_LABEL[s] ?? s)}</span>`; }
+
+function render(){
+  const wss = [...new Set(items.map(i => i.workstream).filter(Boolean))];
+  const ws = $("#f-ws");
+  if (ws.dataset.sig !== wss.join("|")) { ws.innerHTML = `<option value="all">All workstreams</option>` + wss.map(w => `<option value="${esc(w)}">${esc(w)}</option>`).join(""); ws.dataset.sig = wss.join("|"); }
+  ws.value = f.ws; $("#f-sev").value = f.sev; $("#f-kind").value = f.kind;
+  document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.v === view)));
+  const last = [...items, ...bugs].reduce((m,i) => (i.updatedAt || "") > m ? i.updatedAt : m, "");
+  $("#meta-updated").innerHTML = last ? `Last change <b>${esc(fmtDate(last))}</b>` : "";
+  $("#meta-counts").innerHTML = `<b>${items.length}</b> items · <b>${bugs.length}</b> register rows`;
+  const cnt = s => items.filter(i => i.stage === s).length;
+  $("#pipe").innerHTML = STAGES.map(([k,l]) => `<button class="pst${k === "building" ? " gate" : ""}${k === "plan_review" && cnt(k) ? " attn" : ""}" type="button" data-st="${k}" aria-pressed="${f.stage === k}" title="${k === "building" ? "Past the gate: needs a recorded plan approval" : "Filter to " + l}"><span class="n">${cnt(k)}</span><span class="l"><i style="background:${stColor(k)}"></i>${l}${k === "plan_review" ? " · needs approval" : ""}${k === "building" ? " ▸" : ""}</span></button>`).join("");
+  const done = cnt("done"), active = items.filter(i => i.stage !== "wont_do").length;
+  $("#side").innerHTML = SIDE.map(([k,l]) => `<button type="button" data-st="${k}" aria-pressed="${f.stage === k}"><i style="background:${stColor(k)}"></i>${l} <b class="mono" style="font-weight:500">${cnt(k)}</b></button>`).join("") +
+    `<span style="margin-left:auto">${done} of ${active} done · ${items.filter(i => i.plan?.approvedAt).length} plans approved</span>`;
+  const W = (meta?.waves?.length ? meta.waves : [...new Set(items.map(i => i.wave).filter(Boolean))].map(id => ({id, name:id, why:""})));
+  $("#waves").innerHTML = W.map(w => {
+    const its = items.filter(i => i.wave === w.id), dn = its.filter(i => i.stage === "done").length;
+    const crit = its.filter(i => i.severity === "critical" && i.stage !== "done").length;
+    const segs = ALL_STAGES.map(([k,l]) => { const n = its.filter(i => i.stage === k).length; return n ? `<span style="flex:${n};background:${stColor(k)}" title="${l}: ${n}"></span>` : ""; }).join("");
+    return `<button class="wave" type="button" data-w="${esc(w.id)}" aria-pressed="${f.wave === w.id}"><div class="wh"><span><span class="wid">${esc(w.id)}</span> <span class="wn">${esc(w.name)}</span></span><span class="wc">${dn}/${its.length}${crit ? ` · <span style="color:var(--critical)">${crit} critical</span>` : ""}</span></div><div class="bar" role="img" aria-label="${esc(w.name)}: ${dn} of ${its.length} done">${segs}</div><div class="why">${esc(w.why)}</div></button>`;
+  }).join("");
+  if (view === "register") return renderRegister();
+  if (!items.length) { $("#view").innerHTML = `<div class="empty">The tracker is empty. Run an intake: <code>/fixit-plugin:intake</code>.</div>`; $("#count").textContent = ""; return; }
+  const rows = visible();
+  $("#count").textContent = `${rows.length} of ${items.length}`;
+  if (view === "board") renderBoard(rows); else if (view === "table") renderTable(rows); else renderClusters(rows);
+}
+function card(i){
+  return `<button class="card" type="button" data-id="${esc(i.id)}"><span class="top"><span class="id">${esc(i.id)}</span><span class="sev ${esc(i.severity)}">${SEV_LABEL[i.severity] ?? esc(i.severity)}</span></span><span class="t">${esc(i.title)}</span><span class="tags">${i.wave ? `<span class="tag">${esc(i.wave)}</span>` : ""}${i.cluster ? `<span class="tag">${esc(i.cluster)}</span>` : ""}<span class="tag">${esc(KIND_LABEL[i.kind] ?? i.kind)}</span>${i.plan?.approvedAt ? `<span class="tag gate-ok">✓ plan</span>` : ""}</span></button>`;
+}
+function renderBoard(rows){
+  const cols = ALL_STAGES.filter(([k]) => f.stage === "all" || f.stage === k);
+  $("#view").innerHTML = `<div class="board-scroll"><div class="board">${cols.map(([k,l]) => { const its = rows.filter(i => i.stage === k);
+    return `<div class="col${k === "building" ? " gate" : ""}"><div class="col-h"><span class="stg"><i style="background:${stColor(k)}"></i>${l}</span><span class="n">${its.length}</span></div>${its.length ? its.map(card).join("") : `<div class="empty-col">${k === "plan_review" ? "No plans waiting for approval." : "Nothing here."}</div>`}</div>`; }).join("")}</div></div>`;
+}
+function renderTable(rows){
+  if (!rows.length) { $("#view").innerHTML = `<div class="empty">No items match these filters.</div>`; return; }
+  const W = (meta?.waves?.length ? meta.waves : [...new Set(rows.map(i => i.wave))].map(id => ({id,name:id||"No wave",why:""})));
+  const groups = W.map(w => [`${w.id} · ${w.name}`, w.why, rows.filter(i => i.wave === w.id)]);
+  const loose = rows.filter(i => !W.some(w => w.id === i.wave)); if (loose.length) groups.push(["No wave", "", loose]);
+  $("#view").innerHTML = groups.filter(g => g[2].length).map(([t, why, r]) => `<div class="group"><div class="group-h"><h2>${esc(t)}</h2><span class="n">${r.length}</span>${why ? `<span class="why">${esc(why)}</span>` : ""}</div><div class="rows">${r.map(i => `<button class="row" type="button" data-id="${esc(i.id)}"><span class="id">${esc(i.id)}</span><span class="sevcell"><span class="sev ${esc(i.severity)}">${SEV_LABEL[i.severity] ?? esc(i.severity)}</span></span><span class="ttl">${esc(i.title)}<span class="sub">${esc(i.workstream)} · ${esc(KIND_LABEL[i.kind] ?? i.kind)}${i.dependsOn?.length ? " · after " + esc(i.dependsOn.join(", ")) : ""}</span></span><span class="cl">${i.cluster ? esc(i.cluster) : "—"}</span><span class="stcell">${stagePill(i.stage)}${i.plan?.approvedAt ? ` <span class="tag gate-ok">✓</span>` : ""}</span></button>`).join("")}</div></div>`).join("");
+}
+function renderClusters(rows){
+  const set = new Set(rows.map(i => i.id));
+  const C = (meta?.clusters || []).map(c => ({...c, its: c.items.map(id => items.find(i => i.id === id)).filter(Boolean).filter(i => set.has(i.id))})).filter(c => c.its.length);
+  const loose = rows.filter(i => !i.cluster);
+  if (!C.length && !loose.length) { $("#view").innerHTML = `<div class="empty">No items match these filters.</div>`; return; }
+  const li = i => `<li><button type="button" data-id="${esc(i.id)}"><span class="id">${esc(i.id)}</span><span class="t" title="${esc(i.title)}">${esc(i.title)}</span>${stagePill(i.stage)}</button></li>`;
+  $("#view").innerHTML = `<p style="margin-top:18px;font-size:13.5px;color:var(--ink-2)">Items that share code. One planning run covers a cluster; each item still gets its own approval.</p><div class="clusters">${C.map(c => { const dn = c.its.filter(i => i.stage === "done").length, ap = c.its.filter(i => i.plan?.approvedAt).length;
+    return `<div class="cluster"><div class="ch"><h3>${esc(c.name)}</h3><span class="cid">${esc(c.id)}</span></div><div class="bar">${ALL_STAGES.map(([k]) => { const n = c.its.filter(i => i.stage === k).length; return n ? `<span style="flex:${n};background:${stColor(k)}"></span>` : ""; }).join("")}</div><ul>${c.its.map(li).join("")}</ul><div class="mono" style="font-size:11.5px;color:var(--muted)">${ap}/${c.its.length} approved · ${dn}/${c.its.length} done · plan cluster ${esc(c.id)}</div></div>`; }).join("")}${loose.length ? `<div class="cluster"><div class="ch"><h3>Standalone items</h3><span class="cid">${loose.length}</span></div><ul>${loose.map(li).join("")}</ul></div>` : ""}</div>`;
+}
+function renderRegister(){
+  const q = f.q.trim().toLowerCase();
+  const rows = bugs.filter(b => (f.sev === "all" || b.severity === f.sev) && (!q || [b.key,b.title,b.detail,b.location,b.pinnedBy,b.component,b.foundBy].join(" ").toLowerCase().includes(q)));
+  $("#count").textContent = `${rows.length} of ${bugs.length} rows`;
+  if (!bugs.length) { $("#view").innerHTML = `<div class="empty">The register is empty${meta?.registerUrl ? ` here — it lives at <a href="${esc(meta.registerUrl)}" target="_blank" rel="noopener">its own page</a>` : ""}.</div>`; return; }
+  const un = bugs.filter(b => ["open","in_progress"].includes(b.status));
+  const stat = (v,l,a) => `<div style="display:grid"><span style="font-family:var(--display);font-size:30px;font-weight:600;line-height:1${a ? ";color:var(--critical)" : ""}">${v}</span><span style="font-size:12.5px;color:var(--ink-2)">${l}</span></div>`;
+  const cats = [...new Set(rows.map(b => b.category || "Uncategorised"))];
+  $("#view").innerHTML = `<div class="panel" style="margin-top:18px"><div style="display:flex;gap:28px;flex-wrap:wrap">${stat(un.length, `unresolved of ${bugs.length}`)}${stat(un.filter(b => b.severity === "critical").length, "critical open", un.some(b => b.severity === "critical"))}${stat(un.filter(b => b.severity === "high").length, "high open")}${stat(bugs.filter(b => b.status === "fixed").length, "fixed")}</div></div>` +
+    cats.map(c => { const r = rows.filter(b => (b.category || "Uncategorised") === c); return `<div class="group"><div class="group-h"><h2>${esc(c)}</h2><span class="n">${r.length}</span></div><div class="rows">${r.map(b => `<button class="row" type="button" data-key="${esc(b.key)}"><span class="id">${esc(b.key)}</span><span class="sevcell"><span class="sev ${esc(b.severity)}">${SEV_LABEL[b.severity] ?? esc(b.severity)}</span></span><span class="ttl">${esc(b.title)}<span class="sub">${esc(b.component)} · ${esc(b.foundBy)}</span></span><span class="cl">${esc(items.find(i => i.registerKey === b.key)?.stage ? ST_LABEL[items.find(i => i.registerKey === b.key).stage] : "untracked")}</span><span class="stcell">${rsPill(b.status)}</span></button>`).join("")}</div></div>`; }).join("");
+}
+
+/* drawer */
+$("#scrim").addEventListener("click", closeDrawer);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#drawer").hidden) closeDrawer(); });
+const cli = () => STATIC?.cli || "remedy";
+function openRow(key){
+  const b = bugs.find(x => x.key === key); if (!b) return;
+  const linked = items.find(i => i.registerKey === key);
+  if (linked) return openDrawer(linked.id);
+  openId = null;
+  const d = $("#drawer");
+  d.innerHTML = `<button class="x" type="button" id="d-close">Close</button><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="mono" style="color:var(--ink-2)">${esc(b.key)}</span><span class="sev ${esc(b.severity)}">${SEV_LABEL[b.severity] ?? esc(b.severity)}</span>${rsPill(b.status)}</div><h2 id="d-title">${esc(b.title)}</h2><div class="dl"><div><div class="k">What happens</div><div class="v">${esc(b.detail)}</div></div>${b.impact ? `<div><div class="k">Impact</div><div class="v">${esc(b.impact)}</div></div>` : ""}<div><div class="k">Where</div><div class="v mono" style="font-size:12.5px">${esc(b.location)}</div></div><div><div class="k">Found by · confidence</div><div class="v">${esc(b.foundBy)} · ${esc(b.confidence)}</div></div><div><div class="k">Pinned by</div><div class="v mono" style="font-size:12.5px">${esc(b.pinnedBy || "No test pins this yet.")}</div></div><div><div class="k">Tracker</div><div class="v">Not linked to a tracker item.</div></div></div>`;
+  d.hidden = false; $("#scrim").hidden = false; $("#d-close").addEventListener("click", closeDrawer); $("#d-close").focus();
+}
+function openDrawer(id){
+  const i = items.find(x => x.id === id); if (!i) return;
+  openId = id;
+  const reg = i.registerKey ? bugs.find(b => b.key === i.registerKey) : null;
+  const d = $("#drawer");
+  d.innerHTML = `<button class="x" type="button" id="d-close">Close</button>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="mono" style="color:var(--ink-2)">${esc(i.id)}</span><span class="sev ${esc(i.severity)}">${SEV_LABEL[i.severity] ?? esc(i.severity)}</span><span id="d-stage-pill">${stagePill(i.stage)}</span>${i.wave ? `<span class="tag">${esc(i.wave)}</span>` : ""}${i.cluster ? `<span class="tag">${esc(i.cluster)}</span>` : ""}</div>
+    <h2 id="d-title">${esc(i.title)}</h2>
+    <div class="dl">
+      <div><div class="k">What's wrong</div><div class="v">${esc(i.summary)}</div></div>
+      ${i.impact ? `<div><div class="k">Impact</div><div class="v">${esc(i.impact)}</div></div>` : ""}
+      <div><div class="k">Where · evidence</div><ul>${(i.sources||[]).map(s => `<li>${esc(s)}</li>`).join("") || "<li>—</li>"}</ul></div>
+      <div><div class="k">Test to flip</div><div class="v mono" style="font-size:12.5px;color:var(--ink-2);overflow-wrap:anywhere">${i.pinnedBy ? esc(i.pinnedBy) : "None yet — the plan adds one."}</div></div>
+      <div><div class="k">Done when</div><div class="v">${esc(i.acceptance)}</div></div>
+      <div><div class="k">Workstream · kind · register</div><div class="v">${esc(i.workstream || "—")} · ${esc(KIND_LABEL[i.kind] ?? i.kind)} · ${reg ? `${esc(reg.key)} ${rsPill(reg.status)}` : (i.registerKey ? esc(i.registerKey) : "not in the register")}</div></div>
+      ${i.dependsOn?.length ? `<div><div class="k">Plan after</div><div class="v">${i.dependsOn.map(x => `<button class="linkbtn" type="button" data-jump="${esc(x)}">${esc(x)}</button>`).join(", ")}</div></div>` : ""}
+      ${i.cluster ? (() => { const c = (meta?.clusters||[]).find(c => c.id === i.cluster); const sib = (c?.items || []).filter(x => x !== i.id); return `<div><div class="k">Cluster</div><div class="v">${esc(c?.name || i.cluster)} <span class="tag">${esc(i.cluster)}</span>${sib.length ? " — with " + sib.map(x => `<button class="linkbtn" type="button" data-jump="${esc(x)}">${esc(x)}</button>`).join(", ") : ""}</div></div>`; })() : ""}
+      ${i.plan?.path ? `<div><div class="k">Plan</div><div class="v"><code>${esc(i.plan.path)}</code><div style="margin-top:6px">${esc(i.plan.summary)}</div></div></div>` : ""}
+      ${i.note ? `<div><div class="k">Note</div><div class="v">${esc(i.note)}</div></div>` : ""}
+    </div>
+    <div class="gatebox" id="d-gate"></div>
+    ${STATIC ? staticActions(i) : liveEditor(i)}
+    <div class="hist" id="d-hist"></div>`;
+  d.hidden = false; $("#scrim").hidden = false;
+  $("#d-close").addEventListener("click", closeDrawer); $("#d-close").focus();
+  d.querySelectorAll("[data-jump]").forEach(b => b.addEventListener("click", () => openDrawer(b.dataset.jump)));
+  $("#d-save")?.addEventListener("click", save);
+  refreshDrawer();
+}
+function staticActions(i){
+  const c = cli(), lines = [];
+  if (["backlog","planning"].includes(i.stage)) lines.push(`/fixit-plugin:plan ${i.cluster ? "cluster " + i.cluster : i.id}`);
+  if (i.stage === "plan_review") lines.push(`${c} approve ${i.id} --by "<owner>"`, `${c} request-changes ${i.id} --note "<what to change>"`);
+  if (i.stage === "approved") lines.push(`/fixit-plugin:build ${i.id}`);
+  if (i.stage === "building") lines.push(`${c} stage ${i.id} in_review --note "PR #…"`);
+  if (i.stage === "in_review") lines.push(`${c} stage ${i.id} done --note "merged in …"`);
+  return `<div class="cli"><h3>Next step</h3>${lines.map(l => `<code>${esc(l)}</code>`).join("")}<span class="msg">This page is a snapshot. Changes go through the CLI or Claude Code, then re-render.</span></div>`;
+}
+function liveEditor(i){
+  return `<div class="edit"><h3>Plan and status</h3>
+    <label for="d-path">Plan file in the repo<input id="d-path" type="text" placeholder="docs/remediation/${esc(i.id)}.md" value="${esc(i.plan?.path)}"></label>
+    <label for="d-psum">Plan summary<textarea id="d-psum" placeholder="Root cause, the fix, the test that flips.">${esc(i.plan?.summary)}</textarea></label>
+    <label for="d-stage">Stage<select id="d-stage">${ALL_STAGES.filter(([k]) => k !== "approved" || i.stage === "approved").map(([k,l]) => `<option value="${k}"${k === i.stage ? " selected" : ""}>${l}${PAST_GATE.has(k) ? " (needs approval)" : ""}</option>`).join("")}</select></label>
+    <label for="d-note">Note — PR, owner, blocker<textarea id="d-note">${esc(i.note)}</textarea></label>
+    <div class="btns"><button class="btn" type="button" id="d-save">Save</button></div>
+    <div class="msg" id="d-msg" role="status"></div></div>`;
+}
+function renderGate(i){
+  const g = $("#d-gate"); if (!g) return;
+  const approved = !!i.plan?.approvedAt;
+  g.className = "gatebox" + (i.stage === "plan_review" && !approved ? " pending" : "");
+  let body;
+  if (approved) body = `<div class="gs"><b>Plan approved</b> ${esc(fmtDate(i.plan.approvedAt))} by <span class="who" data-id="${esc(i.plan.approvedBy)}"></span>. Building may start.</div>`;
+  else if (i.stage === "plan_review") body = `<div class="gs"><b>Waiting for approval.</b> Read the plan${i.plan?.path ? ` at <code>${esc(i.plan.path)}</code>` : ""}, then approve it or send it back with a note.</div>${!STATIC && canApprove ? `<div class="btns"><button class="btn ok" type="button" id="d-approve">Approve plan</button><button class="btn sec" type="button" id="d-changes">Request changes</button></div>` : (!STATIC ? `<div class="gs" style="color:var(--muted)">Only editors can approve plans.</div>` : "")}`;
+  else body = `<div class="gs"><b>Gate closed.</b> This item needs a plan and an approval before Building.</div>`;
+  g.innerHTML = body;
+  $("#d-approve")?.addEventListener("click", () => gateAction("approve"));
+  $("#d-changes")?.addEventListener("click", () => gateAction("changes"));
+}
+async function refreshDrawer(){
+  const i = items.find(x => x.id === openId); if (!i || $("#drawer").hidden) return;
+  $("#d-stage-pill").innerHTML = stagePill(i.stage);
+  const sel = $("#d-stage");
+  if (sel) { if (!sel.dataset.orig || sel.value === sel.dataset.orig) sel.value = i.stage; sel.dataset.orig = i.stage; }
+  renderGate(i);
+  if (!STATIC && readOnly) ["#d-path","#d-psum","#d-stage","#d-note","#d-save"].forEach(s => { const e = $(s); if (e) e.disabled = true; });
+  const hist = [...(i.history ?? [])].reverse();
+  const ids = [...new Set([i.updatedBy, i.plan?.approvedBy, ...hist.map(x => x.by)].filter(Boolean))];
+  if (user && ids.length) { try { names = await user.profiles(ids); } catch {} }
+  const who = id => id ? (names[id]?.name || (STATIC || !String(id).startsWith("u_") ? id : "Someone")) : "—";
+  $("#d-hist").innerHTML = hist.map(x => `<div><b>${esc(x.action || ST_LABEL[x.stage] || x.stage)}</b><span>${esc(fmtDate(x.at))}</span><span class="who" data-id="${esc(x.by ?? "")}"></span>${x.note ? `<span>— ${esc(x.note)}</span>` : ""}</div>`).join("");
+  document.querySelectorAll("#drawer .who").forEach(n => n.textContent = who(n.dataset.id));
+}
+async function write(i, patch, entry){
+  const at = new Date().toISOString();
+  const history = [...(i.history ?? []), {...entry, by: myId, at}].slice(-40);
+  await db.doc("items/" + i._id).update({...patch, updatedBy: myId, updatedAt: at, history});
+  if (i.registerKey && patch.stage) {
+    const map = {backlog:"open",planning:"open",plan_review:"open",approved:"open",building:"in_progress",in_review:"fix_in_review",done:"fixed",wont_do:"wont_fix"};
+    const b = bugs.find(x => x.key === i.registerKey);
+    if (b && map[patch.stage] && b.status !== map[patch.stage]) {
+      try { await db.doc("bugs/" + b._id).update({status: map[patch.stage], updatedBy: myId, updatedAt: at, history: [...(b.history ?? []), {status: map[patch.stage], note: `Mirrored from ${i.id}`, by: myId, at}].slice(-40)}); } catch {}
+    }
+  }
+}
+function fail(e){ const m = $("#d-msg"); if (!m) return; m.classList.add("err"); m.textContent = e?.code === "invalid_argument" ? "Your access is read-only, so the change was not saved." : e?.code === "unavailable" ? "Could not reach the tracker. Try again." : "Not saved: " + (e?.message ?? "unknown error"); }
+async function save(){
+  const i = items.find(x => x.id === openId); if (!i || readOnly) return;
+  const m = $("#d-msg"); m.classList.remove("err");
+  const stage = $("#d-stage").value, note = $("#d-note").value.trim(), path = $("#d-path").value.trim(), psum = $("#d-psum").value.trim();
+  if (PAST_GATE.has(stage) && !PAST_GATE.has(i.stage) && !i.plan?.approvedAt) { m.classList.add("err"); m.textContent = `${i.id} can't move to ${ST_LABEL[stage]}: its plan has not been approved.`; $("#d-stage").value = i.stage; return; }
+  const planChanged = path !== (i.plan?.path ?? "") || psum !== (i.plan?.summary ?? "");
+  if (stage === i.stage && note === (i.note ?? "") && !planChanged) { m.textContent = "Nothing changed."; return; }
+  const plan = {...(i.plan ?? {}), path, summary: psum};
+  let reopened = false;
+  if (planChanged && i.plan?.approvedAt && !PAST_GATE.has(stage)) { plan.approvedAt = ""; plan.approvedBy = ""; reopened = true; }
+  const nextStage = reopened && stage === "approved" ? "plan_review" : stage;
+  m.textContent = "Saving…";
+  try { await write(i, {stage: nextStage, note, plan}, {stage: nextStage, action: nextStage !== i.stage ? ST_LABEL[nextStage] : (planChanged ? "Plan edited" : "Note"), note});
+    m.textContent = reopened ? "Saved. The plan changed, so its approval was withdrawn." : `Saved — ${i.id} is ${ST_LABEL[nextStage]}.`; } catch (e) { fail(e); }
+}
+async function gateAction(kind){
+  const i = items.find(x => x.id === openId); if (!i || readOnly || !canApprove) return;
+  const m = $("#d-msg"); m.classList.remove("err");
+  const note = $("#d-note")?.value.trim() || "";
+  if (kind === "changes" && !note) { m.classList.add("err"); m.textContent = "Add a note that says what the plan should change."; $("#d-note").focus(); return; }
+  m.textContent = "Saving…";
+  try {
+    if (kind === "approve") { await write(i, {stage:"approved", note, plan:{...(i.plan ?? {}), approvedBy: myId, approvedAt: new Date().toISOString()}}, {stage:"approved", action:"Plan approved", note}); m.textContent = `Approved — ${i.id} may move to Building.`; }
+    else { await write(i, {stage:"planning", note, plan:{...(i.plan ?? {}), approvedBy:"", approvedAt:""}}, {stage:"planning", action:"Changes requested", note}); m.textContent = "Sent back to Planning."; }
+  } catch (e) { fail(e); }
+}
+function closeDrawer(){ $("#drawer").hidden = true; $("#scrim").hidden = true; const k = openId; openId = null; document.querySelector(`[data-id="${CSS.escape(k ?? "")}"]`)?.focus(); }
+</script>

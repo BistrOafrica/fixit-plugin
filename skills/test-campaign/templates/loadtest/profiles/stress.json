@@ -1,0 +1,12 @@
+{
+  "$comment": "Step up the arrival rate until thresholds abort. The rate at abort IS the capacity finding.",
+  "actors": { "executor": "ramping-arrival-rate", "startRate": 2, "timeUnit": "1s", "preAllocatedVUs": 50, "maxVUs": 400,
+    "stages": [ { "target": 4, "duration": "3m" }, { "target": 6, "duration": "3m" }, { "target": 8, "duration": "3m" }, { "target": 12, "duration": "3m" }, { "target": 16, "duration": "3m" }, { "target": 20, "duration": "3m" } ] },
+  "followups": { "rate": 10, "timeUnit": "1s", "preAllocatedVUs": 20, "maxVUs": 100, "duration": "25m" },
+  "browsers": { "vus": 5, "duration": "20m" },
+  "probeRate": 0.05,
+  "thresholds": {
+    "http_req_failed{lt:app}": [{ "threshold": "rate<0.05", "abortOnFail": true, "delayAbortEval": "1m" }],
+    "http_req_duration{lt:app}": [{ "threshold": "p(99)<5000", "abortOnFail": true, "delayAbortEval": "1m" }]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fixit-plugin/campaign-findings",
+  "title": "Test campaign findings",
+  "$comment": "Written by the test-campaign skill; imported by `remedy import-campaign`. confirmed → register row + tracker item; lead → tracker item (kind validation, severity unrated).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["fingerprint", "verdict", "title", "detail", "layer"],
+    "properties": {
+      "fingerprint": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]*$", "description": "Stable across runs; re-runs dedupe on it." },
+      "verdict": { "type": "string", "enum": ["confirmed", "lead"] },
+      "title": { "type": "string", "minLength": 1 },
+      "detail": { "type": "string", "minLength": 1 },
+      "impact": { "type": "string" },
+      "severity": { "type": "string", "enum": ["critical", "high", "medium", "low"], "description": "Required for confirmed; omit for lead." },
+      "layer": { "type": "string", "enum": ["http-authz", "simulation", "load-lifecycle", "capacity", "browser-e2e", "frontend-contract", "static"] },
+      "kind": { "type": "string", "enum": ["bug", "perf", "gap", "debt", "test-gap"] },
+      "category": { "type": "string" },
+      "component": { "type": "string" },
+      "location": { "type": "array", "items": { "type": "string" } },
+      "reproduction": { "type": "string", "description": "Test name, seed, request, query or screenshot that reproduces it." },
+      "pinnedBy": { "type": "string", "description": "path:line (marker) of the pinning test." },
+      "blocker": { "type": "string", "description": "For leads: what is unresolved." }
+    },
+    "allOf": [{ "if": { "properties": { "verdict": { "const": "confirmed" } } }, "then": { "required": ["severity"] } }]
+  }
+}

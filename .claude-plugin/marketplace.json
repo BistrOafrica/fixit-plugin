@@ -1,0 +1,20 @@
+{
+  "name": "bistroafrica",
+  "owner": {
+    "name": "bistroafrica",
+    "url": "https://github.com/bistroafrica",
+    "email": "joekangethe@pm.me"
+  },
+  "metadata": {
+    "description": "bistroafrica's Claude Code plugins",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "fixit-plugin",
+      "description": "Security audit + test campaign (k6, Playwright, simulation, capacity) \u2192 bug register \u2192 gated, owner-approved remediation plans \u2192 test-first builds.",
+      "source": "./",
+      "version": "0.2.0"
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fixit-plugin/register",
+  "title": "Register row",
+  "type": "object",
+  "required": [
+    "key",
+    "title",
+    "severity",
+    "status"
+  ],
+  "properties": {
+    "key": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9]*-\\d{2,}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "detail": {
+      "type": "string"
+    },
+    "impact": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "component": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "unrated"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "fix_in_review",
+        "fixed",
+        "wont_fix"
+      ]
+    },
+    "foundBy": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "string"
+    },
+    "pinnedBy": {
+      "type": "string"
+    },
+    "fingerprint": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "order": {
+      "type": "number"
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "by": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "at"
+        ]
+      }
+    },
+    "updatedAt": {
+      "type": "string"
+    },
+    "updatedBy": {
+      "type": "string"
+    }
+  }
+}

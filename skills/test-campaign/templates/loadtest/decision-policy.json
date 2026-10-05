@@ -1,0 +1,12 @@
+{
+  "$comment": "How the simulated back office decides. Resolution: byProcess.byNode > byProcess.default > byRole > default. Weights are relative. Think times in ms. Every draw is seeded from hashSeed(seed, entityId, nodeId, visit) so a configuration replays exactly.",
+  "seed": 20260928,
+  "default": { "approve": 0.8, "reject": 0.1, "request_info": 0.1, "thinkTime": { "kind": "lognormal", "medianMs": 1500, "p95Ms": 6000 } },
+  "byRole": { "director": { "thinkTime": { "kind": "lognormal", "medianMs": 3000, "p95Ms": 12000 } } },
+  "byProcess": { "example-001": { "default": { "approve": 0.9, "reject": 0.05, "request_info": 0.05 } } },
+  "maxRequestInfoPerEntity": 1,
+  "supervisorFallback": true,
+  "allocation": "round_robin",
+  "pollInterval": { "kind": "uniform", "minMs": 1000, "maxMs": 3000 },
+  "probeRate": 0.05
+}
