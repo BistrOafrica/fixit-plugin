@@ -4,7 +4,7 @@
 
 ## 1. Drain
 - Poll the simulator's `/ledger/stats` until no entries are open, up to the timeout.
-- While waiting, act as the applicants: answer late change requests and pay invoices.
+- While waiting, act as the submitters: answer late info requests and pay outstanding charges.
 
 ## 2. What users saw (API)
 - Any entity observed **leaving a terminal status** is a violation (`transitions`).
@@ -21,7 +21,7 @@
   - `checkNoEditAfterSubmit` on `form_changed` rows;
   - `checkAppendOnly` on consecutive event and correction lengths;
   - `checkAuthorizedDecisions` and `checkSingleDecision` from `decisions.ndjson`;
-  - `checkIntegrity` from invoices, payments and certificates.
+  - `checkIntegrity` from charges, payments and issued documents.
 - **SQL integrity checks**, e.g. a payment intent consumed by more than one entity.
 - **Stuck** entities: not terminal, with the node they wait on and the role addressed.
 - **Top 10 `pg_stat_statements`** by `total_exec_time`. Look for N+1 (huge `calls` on a one-row lookup) and per-write scans.
@@ -35,7 +35,7 @@ List the failed thresholds from `k6-summary.json`.
 
 ## Outputs (`out/<RUN_ID>/`)
 - `report.json` and `report.md`:
-  - totals: filed, terminal, stuck, change requests answered, payments settled, probes refused;
+  - totals: filed, terminal, stuck, info requests answered, payments settled, probes refused;
   - **per process**: filed, approved, rejected, open, and p50/p95 time to terminal;
   - violations: unknown first, then known with their issue ids;
   - slowest statements;

@@ -1,6 +1,6 @@
 {
   "name": "fixit-plugin",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Find, register, plan and fix: Cloudflare's security-audit skill plus a defect-discovery test campaign (HTTP authz, workflow simulation, k6 load lifecycle, capacity, Playwright, contracts, static sweeps) feeding a gated remediation programme \u2014 bug register, tracker, owner-approved per-item plans, test-first builds, live dashboards.",
   "author": {
     "name": "bistroafrica",

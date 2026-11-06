@@ -3,7 +3,7 @@
  * process, one test per path. Unknown invariant violations fail; known ones are
  * reported as todo — and a known bug may only excuse the outcome it explains.
  *
- *   SIM_SERVICES=a,b  SIM_MAX_PATHS=3  node --test this.sim.test.ts
+ *   SIM_PROCESSES=a,b  SIM_MAX_PATHS=3  node --test this.sim.test.ts
  *
  * ADAPT: listProcesses(), makeDeps(), KNOWN_BUGS keys (invariant names).
  */
@@ -15,9 +15,9 @@ import { approveAll, outcomeAt, rejectAt, requestInfoAt, walk, type Strategy, ty
 import { listProcesses, makeDeps } from "./sim-setup"; // ADAPT
 
 const KNOWN_BUGS: Record<string, string> = {
-  // "allocation-honoured": "BUG WF-03: allocation before the first stage is dropped",
+  // "allocation-honoured": "BUG WF-01: allocation before the first stage is dropped",
 };
-const only = process.env.SIM_SERVICES?.split(",");
+const only = process.env.SIM_PROCESSES?.split(",");
 const maxPaths = Number(process.env.SIM_MAX_PATHS || 99);
 const engine = useInlineEngine();
 const matrix: Record<string, Record<string, { status: string; final?: string; violations?: string[]; supervisor?: boolean }>> = {};

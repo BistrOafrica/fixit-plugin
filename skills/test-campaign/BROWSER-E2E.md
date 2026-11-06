@@ -1,6 +1,6 @@
 # Layer · Browser end to end (Playwright)
 
-Use a real browser for what only a browser can show: journeys across roles, access control as rendered, and **layout and rendering**. jsdom has no layout, so a component that is 0 px tall passes every unit test. CMIS's maps were blank for that reason.
+Use a real browser for what only a browser can show: journeys across roles, access control as rendered, and **layout and rendering**. jsdom has no layout, so a component that is 0 px tall passes every unit test. A map or chart can render blank for that reason.
 
 ## Configuration ([templates/playwright.config.ts](templates/playwright.config.ts))
 - Use `workers: 1` and `fullyParallel: false` when personas or shared back-office state are involved.
@@ -18,7 +18,7 @@ Use a real browser for what only a browser can show: journeys across roles, acce
 - Isolation from the load test: address the e2e process to a role no load bot holds, and use slugs that load-test filters don't match. The e2e suite can then run against the live load stack.
 
 ## Spec patterns
-- **Journeys:** use `test.step` across two contexts (citizen applies, officer approves, citizen sees approved; request-info loop). Stamp unique values in answers (`Date.now().toString(36)`).
+- **Journeys:** use `test.step` across two contexts (submitter submits, reviewer approves, submitter sees approved; request-info loop). Stamp unique values in answers (`Date.now().toString(36)`).
 - **RBAC in UI and API:**
   - assert the outsider's queue in the page **and** call the API with the page's own token;
   - **wait until the right approver sees the item** before asserting the outsider sees nothing, so that "empty" means something.
@@ -26,8 +26,8 @@ Use a real browser for what only a browser can show: journeys across roles, acce
   - assert the bounding boxes of the element, its wrapper and the canvas match within 1px × DPR, and that the canvas backing size equals CSS size × DPR;
   - poll `canvas.toDataURL()`, downsample to 48×48 and require more than N distinct colours, so a blank render fails;
   - check both themes.
-- **Network fixtures:** `context.route("https://tiles.example.org/**")` serves recorded files (record them with a script; return 204 for unrecorded tiles), so the test is deterministic offline.
-- **Reproducing a reported UI bug:** before planning a fix, render the page headlessly, read `getComputedStyle` and bounding boxes, try the candidate fix in-page (`el.style.position = "absolute"`), and screenshot before and after. Measurements beat theories. For CMIS this showed the map container was 640×0 because an unlayered vendor stylesheet beat Tailwind v4's layered utilities.
+- **Network fixtures:** `context.route("https://assets.example.org/**")` serves recorded files (record them with a script; return 204 for unrecorded assets), so the test is deterministic offline.
+- **Reproducing a reported UI bug:** before planning a fix, render the page headlessly, read `getComputedStyle` and bounding boxes, try the candidate fix in-page (`el.style.position = "absolute"`), and screenshot before and after. Measurements beat theories; a container measuring 0 px tall, for example, points at a CSS cascade or layering problem rather than at the component.
 
 ## Pinning
 Use `test.fixme` with a `// BUG: file:line — …` comment for journeys blocked by a known defect. See PINNING.md.

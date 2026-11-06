@@ -15,10 +15,11 @@ Build these once. Every later layer depends on them. Templates are in [templates
 - Give child processes a fixed env: `DATABASE_URL=TEST_DATABASE_URL`, `NODE_ENV=test`, silent logs, raised rate limits, test secrets, zero artificial delays, and output directories under `.run/`. The runner's env must override `.env` files.
 - Set a per-test timeout and force exit, because a stray open handle should fail loudly as a timeout instead of hanging CI.
 - Coverage: c8 or istanbul with `all: true`, excluding tests and harness. Record the "before" number first, so the report can show the delta.
+- Register each lane in `fixit.config.json`.
 
 ## Factories and uniqueness
 - `uniq(prefix)` returns `prefix-<pid36>-<time36>-<counter36>`. Every row is unique, so tests never truncate and never collide.
-- Factories write the *scene* directly through the ORM (users with roles, orgs, workflows, forms, services, settled payments). The *behaviour under test* is always exercised through the public interface (HTTP).
+- Factories write the *scene* directly through the ORM (users with roles, orgs, workflows, forms, catalog entries, settled payments). The *behaviour under test* is always exercised through the public interface (HTTP).
 - `makeUser({roles})` refuses unknown roles. Use a low bcrypt cost and one shared test password.
 
 ## Acting as a user ([templates/http-client.ts](templates/http-client.ts))

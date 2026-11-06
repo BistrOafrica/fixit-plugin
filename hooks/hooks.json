@@ -1,0 +1,5 @@
+{ "description": "fixit output guard and context guard", "hooks": {
+  "SessionStart": [{ "matcher": "resume", "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.cjs\"", "timeout": 5 }] }],
+  "PreToolUse": [{ "matcher": "*", "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/context-guard.cjs\"", "timeout": 5 }] }],
+  "PostToolUse": [{ "matcher": "Bash", "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/post-bash.cjs\"", "timeout": 15 }] }]
+} }

@@ -14,7 +14,7 @@
       "name": "fixit-plugin",
       "description": "Security audit + test campaign (k6, Playwright, simulation, capacity) \u2192 bug register \u2192 gated, owner-approved remediation plans \u2192 test-first builds.",
       "source": "./",
-      "version": "0.2.0"
+      "version": "0.3.0"
     }
   ]
 }

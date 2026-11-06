@@ -1,5 +1,5 @@
 /**
- * Simulated back office: one bot per officer account, acting ONLY through the
+ * Simulated back office: one bot per reviewer account, acting ONLY through the
  * public API (never the DB). Decision policy is data (decision-policy.json) and
  * every draw is seeded so a run replays.
  *

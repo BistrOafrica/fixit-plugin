@@ -132,6 +132,193 @@
           "type": "string"
         }
       }
+    },
+    "models": {
+      "type": "object",
+      "description": "Aliases only, never dated model ids. All keys optional; defaults are in scripts/route.cjs.",
+      "properties": {
+        "coordinator": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "triager": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "auditHunter": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "auditHunterDeep": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "auditVerifier": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "campaignAuthor": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "tester": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "investigator": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "planner": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "builder": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "builderRisk": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "builderMechanical": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "builderEscalation": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "reviewer": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "riskPrefixes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "riskPaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "effort": {
+          "type": "object",
+          "properties": {
+            "opus": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "xhigh",
+                "max"
+              ]
+            },
+            "sonnet": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "xhigh",
+                "max"
+              ]
+            },
+            "haiku": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "xhigh",
+                "max"
+              ]
+            }
+          }
+        },
+        "budgetUsd": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "mainBranch": {
+      "type": "string",
+      "description": "Branch `remedy done` compares a commit against (default origin/HEAD, else main)."
     }
   }
 }

@@ -1,6 +1,6 @@
 # Layer · Front-end contracts and components (Vitest + MSW)
 
-These tests prove that each front-end API module sends exactly what the backend expects and decodes exactly what it returns. Most of the front-end defects CMIS found were here: envelope decoding, missing request fields, swallowed errors, 401 handling.
+These tests prove that each front-end API module sends exactly what the backend expects and decodes exactly what it returns. Typical defects at this layer: envelope decoding, missing request fields, swallowed errors, 401 handling.
 
 ## Setup ([templates/msw-server.ts](templates/msw-server.ts))
 - Start `server.listen({ onUnhandledRequest: "error" })`, so **any unstubbed call fails the test**.

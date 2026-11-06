@@ -14,9 +14,9 @@ An array validated against [campaign-findings.schema.json](campaign-findings.sch
   "layer": "http-authz",
   "category": "Security",
   "component": "Auth",
-  "location": ["mockend/src/modules/auth/auth.controller.ts:41", "auth.service.ts:328"],
+  "location": ["src/modules/auth/auth.controller.ts:41", "auth.service.ts:328"],
   "reproduction": "auth.test.ts › register with an existing email (todo)",
-  "pinnedBy": "mockend/src/modules/auth/__tests__/auth.test.ts:411 (todo)",
+  "pinnedBy": "src/modules/auth/__tests__/auth.test.ts:411 (todo)",
   "kind": "bug"
 }
 ```
@@ -42,8 +42,8 @@ Sections in this order, with numbers taken from the run artifacts, never estimat
 4. **Coverage**: backend before → after, by area; the front ends.
 5. **Simulation matrix**: process × path cells (pass, bug, n/a, blocked by config, supervisor needed).
 6. **Load lifecycle**:
-   - items filed, terminal and stuck;
-   - change requests answered and payments settled;
+   - items submitted, terminal and stuck;
+   - info requests answered and payments settled;
    - probes refused;
    - thresholds passed;
    - known versus unknown violations;

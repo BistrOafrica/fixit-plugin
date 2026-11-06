@@ -166,6 +166,66 @@
     },
     "updatedBy": {
       "type": "string"
+    },
+    "risk": {
+      "type": "string",
+      "enum": [
+        "security",
+        "auth",
+        "money",
+        "data-migration",
+        "mechanical",
+        "routine"
+      ]
+    },
+    "model": {
+      "type": "string",
+      "enum": [
+        "opus",
+        "sonnet",
+        "haiku",
+        "inherit"
+      ]
+    },
+    "escalation": {
+      "type": "object",
+      "properties": {
+        "model": {
+          "type": "string",
+          "enum": [
+            "opus",
+            "sonnet",
+            "haiku",
+            "inherit"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "at": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "model"
+      ]
+    },
+    "cost": {
+      "type": "object",
+      "properties": {
+        "usd": {
+          "type": "number"
+        },
+        "turns": {
+          "type": "number"
+        },
+        "runs": {
+          "type": "number"
+        },
+        "usage": {
+          "type": "object"
+        }
+      }
     }
   },
   "$comment": "Gate invariant (enforced by remedy.cjs validate): stage in {building,in_review,done,approved} requires plan.approvedAt; stage in {plan_review,approved,building,in_review,done} requires plan.path."

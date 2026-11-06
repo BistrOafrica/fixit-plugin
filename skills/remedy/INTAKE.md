@@ -1,6 +1,6 @@
 # Intake — filling the register and the tracker
 
-Every source ends in the same place: a register row for each **confirmed defect** and a tracker item for **every unit of work**. Dedupe before adding (`fingerprint`, `registerKey`, or a title/location match), and use `next-id` for new ids.
+Write ledger changes in bulk with `remedy batch FILE` (many `add-item`, `add-row`, `cluster` and `set-plan` operations in one call, all or nothing; it never approves), not one call per item. Every source ends in the same place: a register row for each **confirmed defect** and a tracker item for **every unit of work**. Dedupe before adding (`fingerprint`, `registerKey`, or a title/location match), and use `next-id` for new ids.
 
 ## 1. Security audit (bundled `security-audit` skill)
 
@@ -31,11 +31,11 @@ When a test suite encodes known bugs (`it.fails`, `test.todo`, `test.fixme`, `xf
 ```
 node <remedy>/scripts/remedy.cjs scan > /tmp/markers.json
 ```
-Triage each marker: confirm the defect by reading the code, then add a register row (`foundBy`: the test layer) and a tracker item with `pinnedBy` set to the exact test (`path · test name (it.fails)`). The build flips that marker.
+Triage each marker in a `remedy-triager` worker (give it this file's path and the marker list): it confirms each defect by reading the code, then records a register row (`foundBy`: the test layer) and a tracker item with `pinnedBy` set to the exact test (`path · test name (it.fails)`). The build flips that marker.
 
 ## 3. Code and plan sweep (TODOs, stubs, gaps)
 
-Search for TODO/FIXME/"not yet available"/"coming soon"/placeholder returns, dead routes, mock-only screens, and unchecked items in design/plan docs. These become tracker items **without** register rows (kinds todo/stub/gap/debt/feature), unless they cause wrong behaviour today — then they are defects and get a row. Use an exploration subagent for broad sweeps and keep only conclusions.
+Search for TODO/FIXME/"not yet available"/"coming soon"/placeholder returns, dead routes, mock-only screens, and unchecked items in design/plan docs. These become tracker items **without** register rows (kinds todo/stub/gap/debt/feature), unless they cause wrong behaviour today — then they are defects and get a row. Spawn `remedy-triager` for broad sweeps; it returns conclusions, not file dumps.
 
 ## 4. Owner reports
 

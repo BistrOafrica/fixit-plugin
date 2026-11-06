@@ -22,12 +22,13 @@ Read [PROTOCOL.md](PROTOCOL.md) first: data model, stages, severities, waves, cl
 | "plan SEC-01", "plan cluster AUTH", "plan the next cluster" | [PLANNING.md](PLANNING.md) + `templates/` |
 | "build SEC-01", "implement the approved plans" | [BUILD.md](BUILD.md) |
 | Another Claude session is working the same tracker | [COORDINATION.md](COORDINATION.md) |
+| Which model runs what | `remedy route`, [COORDINATION.md](COORDINATION.md) |
 | A security audit is requested first | the bundled `security-audit` skill, then INTAKE.md §1 |
 | Testing to find defects (load/k6, Playwright, simulation, capacity) | the bundled `test-campaign` skill, then INTAKE.md §1b |
 
 ## The CLI
 
-`scripts/remedy.cjs` (zero dependencies, Node ≥ 18) owns the local ledger at `<repo>/.remedy/` and enforces the gate. Resolve its absolute path from this skill's directory and run it with `node`. Key commands: `init`, `status`, `next-id`, `add-item`, `add-row`, `cluster`, `set-plan`, `stage`, `approve`, `request-changes`, `sync-register`, `import-findings`, `import-campaign`, `scan`, `validate`, `render`, `export-artifact`, `import-artifact`. `node remedy.cjs help` lists flags. Run `validate` after every batch of changes.
+`scripts/remedy.cjs` (zero dependencies, Node ≥ 18) owns the local ledger at `<repo>/.remedy/` and enforces the gate. Run it as `remedy`: the plugin puts its `bin/` on PATH, and the ledger is found from the current directory, so stay in the repository (never `cd` into the plugin to run it). If `remedy` is not found, run `node <this skill's directory>/scripts/remedy.cjs` by absolute path, still from the repository. Key commands: `init`, `status`, `next-id`, `add-item`, `add-row`, `cluster`, `set-plan`, `stage`, `approve`, `request-changes`, `brief`, `route`, `escalate`, `batch`, `done`, `report`, `sync`, `publish`, `handoff`, `usage`, `run`, `sync-register`, `import-findings`, `import-campaign`, `scan`, `validate`, `render`, `export-artifact`, `import-artifact`. `node remedy.cjs help` lists flags. `batch` and `done` validate for you; run `validate` after other changes. Tests and logs go through the plugin's second CLI, `fixit` (`fixit test`, `fixit logs`), configured by `fixit.config.json`; never run test or log commands raw.
 
 ## Non-negotiables
 

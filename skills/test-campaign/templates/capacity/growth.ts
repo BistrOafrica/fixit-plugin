@@ -1,7 +1,7 @@
 /**
  * Growth curve: does a hot read path get slower as history grows?
  *
- *   tsx growth.ts --sizes 1000,3000,10000 --path "/v1/me/inbox" --as officer@x.test --n 40
+ *   tsx growth.ts --sizes 1000,3000,10000 --path "/v1/me/inbox" --as reviewer@x.test --n 40
  *
  * For each history size: seed up to that many rows (ADAPT seedHistory), then
  * time N sequential requests for ONE user with nothing else running, and
@@ -14,7 +14,7 @@ import { writeFileSync } from "node:fs";
 const arg = (k: string, d?: string) => { const i = process.argv.indexOf(`--${k}`); return i > 0 ? process.argv[i + 1]! : d!; };
 const SIZES = arg("sizes", "1000,3000,10000").split(",").map(Number);
 const PATH = arg("path", "/v1/me/inbox");
-const BASE = arg("base", "http://localhost:28081/api");
+const BASE = arg("base", "http://localhost:8081/api");
 const N = Number(arg("n", "40"));
 const TARGET = Number(arg("target", "2100000"));
 

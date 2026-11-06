@@ -28,7 +28,7 @@ export function assertMatchesKnown(found: Set<string>, known: Set<string>, what:
 - Add a second test, "every exemption is still real": an allow-list that rots silently is worse than no allow-list.
 
 ## Rules
-- **The marker names the defect and its location**: `BUG: src/auth.ts:195 — OTP accepts any code`, and the remedy id once one exists (`(SEC-03)`).
+- **The marker names the defect and its location**: `BUG: src/auth.ts:195 — OTP accepts any code`, and the remedy id once one exists (`(SEC-01)`).
 - **A known bug excuses only the outcome it explains.** In simulations and the reconciler, partition violations by invariant or match and fail on the unknown ones. Don't widen an exemption to make a run pass.
 - **The fix flips the marker in the same change** (remedy BUILD.md). The pin becomes the regression test.
 - Each pinned defect goes into `campaign-findings.json` with its `pinnedBy`, so the register can show "Pinned by".

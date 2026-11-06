@@ -1,7 +1,7 @@
 /**
  * Act as a principal against the real app, without a port.
  *
- *   await as(officer).post("/v1/approvals/123/decision", { action: "approve" }).expect(200);
+ *   await as(reviewer).post("/v1/approvals/123/decision", { action: "approve" }).expect(200);
  *   await anon().get("/v1/admin/users").expect(401);
  *   await withToken(mfaToken).get("/v1/auth/profile").expect(401);   // token-type confusion
  *

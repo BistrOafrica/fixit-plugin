@@ -7,8 +7,8 @@
  */
 import { defineConfig, devices } from "@playwright/test";
 
-const API = process.env.E2E_API ?? "http://localhost:28081";
-const PORTAL_PORT = 25174, ADMIN_PORT = 25173;
+const API = process.env.E2E_API ?? "http://localhost:8081";
+const PORTAL_PORT = 5174, ADMIN_PORT = 5173;
 
 export default defineConfig({
   testDir: "./tests",

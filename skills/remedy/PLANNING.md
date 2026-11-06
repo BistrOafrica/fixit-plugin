@@ -1,22 +1,15 @@
 # Planning runs
 
-A planning run turns backlog items into approved-ready plans. Trigger: "plan SEC-01", "plan cluster AUTH", "proceed to the next cluster". It writes **documents and ledger state only — never product code.**
+A planning run turns backlog items into approval-ready plans. It writes **documents and ledger state only, never product code**. It runs in a `remedy-planner` worker on Opus, one cluster per worker, and **a planner is never resumed**. A resumed planner keeps its whole context; planners resumed across rounds reached 955k.
 
 ## Steps
-
-1. **Load.** `remedy status`, then read the target items (`remedy show ID`) and the cluster's members. Read related plan docs already in `<planDir>/` (earlier clusters often constrain this one). If the owner named a cluster that doesn't exist, pick the next by wave order and say so. Move items to `planning` (`remedy stage ID planning`).
-2. **Investigate.** Verify every claim in the item against current code; the original report may be stale. For each item establish: root cause with `file:line`, blast radius (every caller/consumer), what already exists that the fix can reuse, and what other plans touch the same files.
-   - Reproduce when cheap and safe: run the pinned test, render the page headlessly, call the endpoint on a local stack. A reproduction beats a theory — the blank-map plan was only right because the page was rendered and measured.
-   - Use read-only exploration subagents for wide surveys; keep their conclusions, not file dumps.
-   - Check the other active plans for overlap (same files, same tables, contradictory decisions) and record the interaction.
-3. **Ask the owner — only what is theirs to decide.** Product policy, who may do what, trade-offs with user impact, scope. Not things the code answers. Use multiple-choice questions, your recommended option first and labelled, each option with its consequence; 1–4 questions per round. If an answer introduces a principle ("a reviewer never changes submission data"), apply it across the cluster and look for existing code that violates it — that is often a new item.
-4. **Write the plans** from [templates/](templates/):
-   - `<planDir>/<CLUSTER>.md` — what's wrong today, owner decisions with date, design summary, build order, interactions with other plans, verification.
-   - `<planDir>/<ID>.md` per item — root cause, decision, fix, files, tests (the test that **fails before** the fix and passes after, named as `pinnedBy`), acceptance.
-   - Before writing, check the file doesn't already exist (a parallel session may own it).
-5. **Record.** For each item: `remedy set-plan ID --path <planDir>/<ID>.md --summary "<one paragraph: cause → fix → test>"` (moves it to plan_review; withdraws a prior approval if the plan changed). Update `pinnedBy`, `dependsOn`, `cluster` as the plan decided. New items found → INTAKE.md §5. Run `remedy validate`.
-6. **Mirror** to the live artifacts if that backend is in use (BACKENDS.md), and persist the owner's decisions where future sessions will see them (the cluster doc always; project memory if available).
-7. **Report** (SKILL.md, Communicating), then stop. The next step is the owner's approval.
+1. **Lead.** `remedy stage A,B,C planning`. Spawn a planner with the cluster id and this file's path. If a cluster does not exist, pick the next by wave order and say so.
+2. **Load.** `remedy status --cluster ID`, and `remedy brief ID --role planner` per item. Read related plan docs in `<planDir>/`, because earlier clusters often constrain this one.
+3. **Investigate.** Verify every claim against current code. For each item establish root cause with `file:line`, blast radius, reusable code, and other plans touching the same files. Reproduce when cheap and safe, using `fixit test` and `fixit logs`, never raw `vitest`, `go test`, `make test-*` or `docker logs`. A lane that does not exist is added to `fixit.config.json`, not run around. A reproduction beats a theory. Read ranges, not whole files. If the cluster is too wide for one worker, propose a split.
+4. **Decisions.** The worker cannot ask the owner directly. Write questions in `## Owner decisions needed` in the cluster doc: only product policy, permissions, user-impact trade-offs and scope, 1–4 per round, recommended option first, each with its consequence. Return. The lead asks the owner and records the answers in the doc. **A fresh planner** then finishes from the doc. If an answer introduces a principle, apply it across the cluster and look for code that violates it; that is often a new item.
+5. **Write the plans** from templates/: `<planDir>/<CLUSTER>.md`, and per item either `<planDir>/<ID>.md` or a `## <ID>` section in the cluster doc, so `remedy brief` can extract it. Each has root cause, decision, fix, files, tests (the test that fails before and passes after, named as `pinnedBy`), acceptance and `Risk:`. Check the file does not already exist; a parallel session may own it.
+6. **Record** in one `remedy batch` file: `set-plan` with path, summary and `risk`, plus `pinnedBy`, `dependsOn`, `cluster` and new items (INTAKE.md §5). `risk` chooses the build's model, so set `mechanical` only when the plan gives exact edits.
+7. **Report** in at most 10 lines, and stop. The lead checks `git status --porcelain` shows only `<planDir>/` and `.remedy/`, persists owner decisions in the cluster doc, and pushes to a live tracker if one is configured. The next step is the owner's approval.
 
 ## Plan quality bar
 

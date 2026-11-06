@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS lt_entity_log (
 );
 CREATE OR REPLACE FUNCTION lt_log_entity() RETURNS trigger AS $$
 BEGIN
-  IF NEW.type IN ('submission','approval_request','workload','invoice') THEN
+  IF NEW.type IN ('submission','approval_request','workload','payment') THEN
     INSERT INTO lt_entity_log(entity_id, entity_type, old_status, new_status, old_version, new_version, form_changed, events_len, corrections_len)
     VALUES (NEW.id, NEW.type,
       CASE WHEN TG_OP = 'UPDATE' THEN OLD.status END, NEW.status,

@@ -1,6 +1,6 @@
 # Layer · Load lifecycle (k6 + simulated back office + reconciler)
 
-A throughput test asks how many requests per second. A **lifecycle** test asks whether every item that entered the system under concurrency finished correctly. Applicants (k6) file real work, simulated officers (bots) decide it through the public API, and a reconciler proves the outcome against the database. In CMIS only this layer exposed decisions accepted on already-decided items and approvals with an open change request.
+A throughput test asks how many requests per second. A **lifecycle** test asks whether every item that entered the system under concurrency finished correctly. Submitters (k6) submit real work, simulated reviewers (bots) decide it through the public API, and a reconciler proves the outcome against the database. This layer can expose problems that only appear under concurrency, such as decisions accepted on already-decided items or approvals granted while an info request is still open.
 
 ## Stack ([templates/loadtest/](templates/loadtest/))
 - A separate compose project with its own ports, DB and volumes, so it never touches dev data.
@@ -12,15 +12,15 @@ A throughput test asks how many requests per second. A **lifecycle** test asks w
 - Pipeline: `lt-up → lt-seed → lt-sim → lt-k6 → lt-reconcile`. The exit code is the reconciler's verdict.
 
 ## Seed
-- Idempotent upserts of applicants (each owning the orgs they need), one bot account per role the workflows wait on, and supervisors.
-- Write fixtures (`applicants.json`, `bots.json`, `services.json`, `credentials.json`) for k6 and the simulator.
+- Idempotent upserts of submitters (each owning the orgs they need), one bot account per role the workflows wait on, and supervisors.
+- Write fixtures (`submitters.json`, `bots.json`, `processes.json`, `credentials.json`) for k6 and the simulator.
 - Guard on the DB name.
 - **Audit triggers ([templates/loadtest/audit-triggers.sql](templates/loadtest/audit-triggers.sql)), installed only on the load stack:** AFTER INSERT/UPDATE triggers append to `lt_entity_log` (old/new status and version, `form_changed`, lengths of event arrays) and `lt_node_log` (workflow node and status changes). This is the ground truth the reconciler replays.
 
 ## k6 actors ([templates/loadtest/k6-main.ts](templates/loadtest/k6-main.ts))
 Three scenarios:
-- **applicants**: log in, browse, generate the form with the *shared generator*, upload, pay, submit, register with the simulator's ledger, and at `probeRate` probe that editing after submit returns 403 (the `lt_probe_failed` Rate).
-- **followups**: lease due ledger entries, answer change requests, pay invoices, report observations.
+- **submitters**: log in, browse, generate the form with the *shared generator*, upload, pay, submit, register with the simulator's ledger, and at `probeRate` probe that editing after submit returns 403 (the `lt_probe_failed` Rate).
+- **followups**: lease due ledger entries, answer info requests, pay outstanding charges, report observations.
 - **browsers**: read traffic.
 
 Also:
@@ -29,8 +29,8 @@ Also:
 - Seed with `hashSeed(RUN_ID, vu, iter, slug)`.
 - Write `k6-summary.json` from `handleSummary`.
 
-## Officer simulator ([templates/loadtest/sim-policy.ts](templates/loadtest/sim-policy.ts))
-- One bot per officer account. Each polls its own inbox through the API, claims (a 403 or 404 means a peer won the race), thinks (lognormal), then decides or completes the task. **Nothing goes through the DB.**
+## Reviewer simulator ([templates/loadtest/sim-policy.ts](templates/loadtest/sim-policy.ts))
+- One bot per reviewer account. Each polls its own inbox through the API, claims (a 403 or 404 means a peer won the race), thinks (lognormal), then decides or completes the task. **Nothing goes through the DB.**
 - **Decision policy** (JSON): weights for approve, reject and request_info; the resolution order `byService.byNode > byService.default > byRole > default`; `maxRequestInfoPerSubmission`; allocation round-robin or random. Each draw is seeded with `hashSeed(policySeed, submissionId, nodeId, visit)`, so a configuration replays exactly.
 - **Probes:** a bot sometimes tries a stage not addressed to it, and any acceptance is recorded in `probeViolations`.
 - **Supervisors** clear only stages the seed marked unactionable, and every clearance is counted.
@@ -38,7 +38,7 @@ Also:
 - **Control plane:** `/metrics`, `/summary`, `/preflight` (eligible processes), `/ledger`, `/ledger/due`, `/ledger/stats`. Rewrite `sim-summary.json` every tick, so a killed run still leaves a summary.
 
 ## Reconciler ([templates/loadtest/reconcile.md](templates/loadtest/reconcile.md))
-1. **Drain:** wait until no ledger entries are open, while acting as applicants for late change requests and invoices.
+1. **Drain:** wait until no ledger entries are open, while acting as submitters for late info requests and charges.
 2. **What users saw:** flag any item seen leaving a terminal state, and turn accepted probes into violations.
 3. **What the DB says:**
    - ledger parity in both directions (lost responses, ghost entities);

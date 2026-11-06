@@ -15,7 +15,7 @@ const IN_HANDLER_GUARDED: Array<{ pattern: RegExp; why: string }> = [
   // { pattern: /^GET \/api\/v1\/me\//, why: "scoped to req.user in the handler" },
 ];
 const KNOWN_UNGATED = new Set<string>([
-  // "GET /api/v1/services"  (BUG SEC-15)
+  // "GET /api/v1/items"  (BUG SEC-01)
 ]);
 
 interface Route { key: string; gated: boolean }

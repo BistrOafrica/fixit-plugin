@@ -5,7 +5,7 @@
  * Each checker returns violations; [] means the invariant holds.
  *
  * ADAPT: statuses, terminal set, transitions (derive them from the code that
- * writes the status), integrity facts (money, documents, certificates).
+ * writes the status), integrity facts (money, issued documents).
  */
 
 export interface Violation { invariant: string; entityId?: string; detail: string }
@@ -80,24 +80,24 @@ export function checkSingleDecision(entityId: string, ds: ReadonlyArray<{ nodeId
   return [...seen].filter(([, n]) => n > 1).map(([k, n]) => ({ invariant: "single-decision", entityId, detail: `${k} decided ${n} times` }));
 }
 
-// ── money and paperwork ─────────────────────────────────────────────────────
+// ── money and issued documents ─────────────────────────────────────────────────────
 export interface IntegrityFacts {
   entityId: string; finalStatus: string;
-  invoicesByNode: Record<string, number>; paymentConsumptions: Record<string, number>; certificates: number;
+  chargesByNode: Record<string, number>; paymentConsumptions: Record<string, number>; issuedDocuments: number;
 }
 export function checkIntegrity(f: IntegrityFacts): Violation[] {
   const out: Violation[] = [];
-  for (const [node, n] of Object.entries(f.invoicesByNode)) if (n > 1) out.push({ invariant: "integrity", entityId: f.entityId, detail: `${n} invoices for payment node ${node}` });
+  for (const [node, n] of Object.entries(f.chargesByNode)) if (n > 1) out.push({ invariant: "integrity", entityId: f.entityId, detail: `${n} charges for payment node ${node}` });
   for (const [ref, n] of Object.entries(f.paymentConsumptions)) if (n > 1) out.push({ invariant: "integrity", entityId: f.entityId, detail: `payment ${ref} spent ${n} times` });
-  if (f.certificates > 1) out.push({ invariant: "integrity", entityId: f.entityId, detail: `${f.certificates} certificates issued` });
-  if (f.finalStatus !== "approved" && f.certificates > 0) out.push({ invariant: "integrity", entityId: f.entityId, detail: `certificate issued for a ${f.finalStatus} entity` });
+  if (f.issuedDocuments > 1) out.push({ invariant: "integrity", entityId: f.entityId, detail: `${f.issuedDocuments} documents issued` });
+  if (f.finalStatus !== "approved" && f.issuedDocuments > 0) out.push({ invariant: "integrity", entityId: f.entityId, detail: `document issued for a ${f.finalStatus} entity` });
   return out;
 }
 
-// ── applicant data frozen after submit; append-only logs never shrink ───────
-export const APPLICANT_EDITABLE = new Set(["draft", "more_info_needed"]);
+// ── submitter data frozen after submit; append-only logs never shrink ───────
+export const SUBMITTER_EDITABLE = new Set(["draft", "more_info_needed"]);
 export function checkNoEditAfterSubmit(entityId: string, changes: ReadonlyArray<{ oldStatus: string; formChanged: boolean }>): Violation[] {
-  return changes.filter((c) => c.formChanged && !APPLICANT_EDITABLE.has(c.oldStatus))
+  return changes.filter((c) => c.formChanged && !SUBMITTER_EDITABLE.has(c.oldStatus))
     .map((c) => ({ invariant: "edit-after-submit", entityId, detail: `answers rewritten while "${c.oldStatus}"` }));
 }
 export function checkAppendOnly(entityId: string, before: Record<string, number>, after: Record<string, number>): Violation[] {

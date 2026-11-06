@@ -18,10 +18,10 @@ import { hashSeed, rng } from "../rng.ts";
 
 const PROFILE = __ENV.PROFILE || "smoke";
 const RUN_ID = __ENV.RUN_ID || "local";
-const BASE = __ENV.BASE_URL || "http://localhost:28000/api/v1";
-const SIM = __ENV.SIM_URL || "http://localhost:28090";
+const BASE = __ENV.BASE_URL || "http://localhost:8080/api/v1";
+const SIM = __ENV.SIM_URL || "http://localhost:8090";
 const profile = JSON.parse(open(`./profiles/${PROFILE}.json`));
-const actors = new SharedArray("actors", () => JSON.parse(open(`${__ENV.FIXTURES_DIR || "../out/fixtures"}/applicants.json`)));
+const actors = new SharedArray("actors", () => JSON.parse(open(`${__ENV.FIXTURES_DIR || "../out/fixtures"}/submitters.json`)));
 const PROCESS_COUNT = Number(__ENV.PROCESS_COUNT || 40); // from the simulator's /preflight
 
 const created = new Counter("lt_created");
@@ -82,15 +82,15 @@ export function file() {
 }
 
 export function followup() {
-  // Lease a due ledger entry; act as its applicant: answer change requests, pay invoices, report what was seen.
+  // Lease a due ledger entry; act as its submitter: answer info requests, pay charges, report what was seen.
   const lease = http.get(`${SIM}/ledger/due`, { tags: { name: "sim due" } });
   if (lease.status !== 200 || !lease.body) return;
-  // ADAPT: read status; if more_info_needed → re-answer requested fields and resubmit; if invoice → pay; POST /ledger/:id/observe
+  // ADAPT: read status; if more_info_needed → re-answer requested fields and resubmit; if payment due → pay; POST /ledger/:id/observe
 }
 
 export function browse() {
   const actor = actors[exec.vu.idInTest % actors.length];
-  req("GET", "/catalog/services", actor, undefined, "GET /catalog/services");
+  req("GET", "/catalog/processes", actor, undefined, "GET /catalog/processes");
   req("GET", "/me/notifications", actor, undefined, "GET /me/notifications");
   sleep(1);
 }

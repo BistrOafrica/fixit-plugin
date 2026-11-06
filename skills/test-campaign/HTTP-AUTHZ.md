@@ -1,6 +1,6 @@
 # Layer · HTTP and authorization
 
-The cheapest layer with the highest yield. It found every account-takeover and data-exposure bug in CMIS. Run integration tests against the real app and real DB (FOUNDATIONS).
+The cheapest layer, and usually a high-yield one: it is where account-takeover and data-exposure bugs show up. Run integration tests against the real app and real DB (FOUNDATIONS).
 
 ## 1. Authorization matrix per endpoint
 For each route, build a table of **principal × expected result** and test every cell:
@@ -9,9 +9,9 @@ For each route, build a table of **principal × expected result** and test every
 |---|---|
 | anonymous | 401 (unless the route is public) |
 | wrong role (has a session, lacks the permission) | 403 |
-| right role, **other tenant / org / county** | 403 or 404, never data |
+| right role, **other tenant / org / region** | 403 or 404, never data |
 | right role, own scope | 2xx and only own-scope rows |
-| external user (citizen/customer) on an internal or admin route | 403 |
+| external user (customer) on an internal or admin route | 403 |
 | a token of the wrong type (MFA, refresh or reset token used as a bearer) | 401 |
 | an expired or tampered token | 401 |
 
@@ -31,7 +31,7 @@ For list endpoints, assert the **contents** as well as the status: no rows outsi
 - A second test fails when a `KNOWN_UNGATED` entry has since been gated (PINNING.md).
 - Print gaps with `console.error` before asserting, because open handles can stop the runner's diagnostics from flushing.
 
-## 3. Identity and session patterns to probe (each became a critical finding in CMIS)
+## 3. Identity and session patterns to probe (each is typically a critical finding)
 - **Registration with an existing email** returns that account's session, or overwrites its password.
 - **Federated or SSO callbacks that trust a caller-supplied identity** (email in the body, unsigned blob).
 - **OTP and code flows:** any code accepted; a token that is just base64 of the identifier; no attempt limit; codes reusable; a "test code" path in production builds.

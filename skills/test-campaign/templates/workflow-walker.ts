@@ -3,7 +3,7 @@
  * human stage by a STRATEGY, probing at every stage that the wrong people are
  * refused, and checking invariants afterwards.
  *
- * ADAPT: fileApplication (exactly as the real client files), the inbox/decision
+ * ADAPT: submitEntity (exactly as the real client submits), the inbox/decision
  * endpoints, how a parked stage is read, status names, the role → user pool.
  */
 import { as } from "./http-client";
@@ -28,25 +28,25 @@ export interface WalkResult {
 export interface WalkDeps {
   engine: InlineEngine;
   pool: { forRole(role: string): Promise<any | null>; supervisor(): Promise<any>; outsider(excluding: string[]): Promise<any> };
-  applicant: any;
-  fileApplication(applicant: any): Promise<string>;                        // ADAPT: returns entity id
+  submitter: any;
+  submitEntity(submitter: any): Promise<string>;                        // ADAPT: returns entity id
   readState(id: string): Promise<{ status: string; parked: Parked | null; atPayment: boolean; graph: any }>; // ADAPT
-  pay(applicant: any, id: string): Promise<void>;                          // ADAPT
-  answerChangeRequest(applicant: any, id: string): Promise<void>;          // ADAPT: re-answer requested fields, resubmit
+  pay(submitter: any, id: string): Promise<void>;                          // ADAPT
+  answerInfoRequest(submitter: any, id: string): Promise<void>;          // ADAPT: re-answer requested fields, resubmit
   decisionPath(id: string, p: Parked): string;                             // ADAPT: e.g. `/approvals/${id}/stages/${p.nodeId}`
 }
 
 export async function walk(d: WalkDeps, strategy: Strategy, maxSteps = 40): Promise<WalkResult> {
   const r: WalkResult = { final: "", stuck: false, steps: 0, parkedAt: [], supervisorOverrides: [], probeFailures: [], violations: [] };
   const statuses: string[] = [], decisions: StageDecision[] = [];
-  const id = await d.fileApplication(d.applicant);
+  const id = await d.submitEntity(d.submitter);
   for (; r.steps < maxSteps; r.steps++) {
     await d.engine.drain();
     const s = await d.readState(id);
     statuses.push(s.status);
     if (TERMINAL_STATUSES.has(s.status)) break;
-    if (s.status === "more_info_needed") { await d.answerChangeRequest(d.applicant, id); continue; }
-    if (s.atPayment) { await d.pay(d.applicant, id); continue; }
+    if (s.status === "more_info_needed") { await d.answerInfoRequest(d.submitter, id); continue; }
+    if (s.atPayment) { await d.pay(d.submitter, id); continue; }
     if (!s.parked) {
       if ((await d.engine.advanceTime(8 * 86_400_000)) === 0) { r.stuck = true; break; }
       continue;
@@ -60,7 +60,7 @@ export async function walk(d: WalkDeps, strategy: Strategy, maxSteps = 40): Prom
     const outsider = await d.pool.outsider(p.roles);
     for (const [who, res] of [
       ["outsider", await as(outsider).post(`${path}/decision`, body)],
-      ["applicant", await as(d.applicant).post(`${path}/decision`, body)],
+      ["submitter", await as(d.submitter).post(`${path}/decision`, body)],
     ] as const) if (![401, 403, 404].includes(res.status)) r.probeFailures.push(`${who} got ${res.status} on ${p.nodeId}`);
 
     let actor = await d.pool.forRole(p.roles[0]!);

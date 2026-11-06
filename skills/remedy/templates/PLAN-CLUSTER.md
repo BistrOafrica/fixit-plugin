@@ -3,6 +3,7 @@
 Cluster overview · Wave <W> · Planned <YYYY-MM-DD> · Status: plan review
 Items: [<ID>](<ID>.md) · [<ID>](<ID>.md) · new [<ID>](<ID>.md)
 Builds on: <other clusters/items this depends on, or —>
+Risk: <the highest tier among the items: security|auth|money|data-migration|mechanical|routine>
 
 ## What's wrong today
 <One bullet per item: the defect and its evidence (`file:line`). Include new items found during this run, marked "(new)".>
@@ -21,3 +22,6 @@ Builds on: <other clusters/items this depends on, or —>
 
 ## Verification (at build time)
 <The commands, tests and manual checks that prove the cluster works end to end.>
+
+## Per-item plans in this document
+When the item plans live here instead of in `<ID>.md`, give each item one `## <ID>` heading (root cause, decision, fix, files, tests, acceptance, `Risk:`) so `remedy brief` can extract it.

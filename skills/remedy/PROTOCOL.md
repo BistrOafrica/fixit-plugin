@@ -36,10 +36,31 @@ Schema: [schemas/item.schema.json](schemas/item.schema.json).
 | `pinnedBy` | test that flips when fixed |
 | `registerKey` | the register row, if this is a confirmed defect |
 | `plan` | `{path, summary, approvedAt, approvedBy}` |
+| `risk` | set by the planner through `set-plan --risk`: security · auth · money · data-migration · mechanical · routine. Feeds `remedy route` |
+| `model` | alias pinned by `remedy route ID --set ALIAS --by WHO --reason R` (opus · sonnet · haiku); wins over every routing rule |
+| `escalation` | `{model, reason, at}`, set by `remedy escalate` after the same failure twice; `brief` then reports that model |
+| `cost` | `{usd, turns, runs, usage}`, recorded by `remedy run` from `total_cost_usd`; a group's cost is split evenly among its items |
 | `note`, `history[]`, `order`, `updatedAt`, `updatedBy` | |
 
 ### Meta (`.remedy/meta.json`, artifact doc `meta/protocol`)
 `title`, `project`, `subtitle`, `planDir` (default `docs/remediation`), `waves[] {id,name,why}`, `clusters[] {id,name,items[]}`, `protocol[]` (the steps shown on the dashboard), `excluded` (what is deliberately out of scope), `reservedIds[]` (ranges claimed by parallel sessions), `decisions[]` (optional log), `publish {trackerUrl, registerUrl}`.
+
+Also optional: `mainBranch` (what `remedy done` compares a commit with; default `origin/HEAD`, else `main`) and `models`, the routing overrides (aliases only: opus, sonnet, haiku, inherit; a dated model id is a `validate` error): per-role models (`coordinator`, `triager`, `auditHunter`, `auditHunterDeep`, `auditVerifier`, `campaignAuthor`, `tester`, `investigator`, `planner`, `builder`, `builderRisk`, `builderMechanical`, `builderEscalation`, `reviewer`), `riskPrefixes` (default SEC, PAY, DATA), `riskPaths` (path prefixes that route a plan to opus), `effort` per model, and `budgetUsd`. `remedy route` resolves a build's model in this order, first match wins: pinned `item.model`; `item.escalation`; severity critical or high; `item.risk` of security, auth, money or data-migration; id prefix in `riskPrefixes`; a plan path under `riskPaths`; `item.risk` mechanical (haiku); otherwise sonnet.
+
+## Files beside the records
+
+| Path | Meaning |
+|---|---|
+| `.remedy/runs/<ID>.md` | a worker's report, written by `remedy report ID` (stdin), so a worker in a worktree needs no path to the main checkout. A fresh worker after an escalation starts from it |
+| `.remedy/runs/<ID>-<n>.json` | the raw result of one `remedy run` worker. Kept out of git by `.remedy/.gitignore` (`runs/*.json`, written by `init` and `remedy run`), while reports and handoffs are committed with the ledger |
+| `.remedy/handoff/<YYYY-MM-DD-HHMM>.md` | a session's handoff: stage counts, in-flight items, run reports, next step and open questions. Written by `remedy handoff`; a fresh session starts from `remedy handoff --latest` |
+| `.remedy/publish-manifest.json` | hash of every document last written to the live artifact; `remedy publish --prepare` sends only the changed ones. `publish-pending.json` holds a prepare until `sync --artifact-commit` |
+| `.remedy/settings-applied.json` | what `remedy init --settings --apply` added to `.claude/settings.json`, so `--revert` can undo exactly that (and restore the original bytes) |
+| `.remedy/meta.json.lock` | held for an instant while `meta.json` is written; a lock older than 10 seconds is stale and is removed |
+
+Outside `.remedy/`: `fixit.config.json` at the repo root (committed; the test lanes, file rules and log sources that `fixit test` and `fixit logs` use, `worktree.setup`, and `run.allow`, the extra Bash rules a `remedy run` worker gets), and `.fixit/` (disposable run output, logs, `worktrees/` and `active/` for `remedy run`, `guard/` for the context guard; it ignores itself).
+
+**The ledger is one copy.** From a git worktree, `remedy` finds the main checkout's `.remedy/` (through `git rev-parse --git-common-dir`), so a builder's `stage`, `report` and `done` reach the lead's ledger even when the programme tracks its ledger files in git and the worktree holds its own checked-out copy. `--dir` and `REMEDY_DIR` override this.
 
 ## Stages and the gate
 
@@ -73,7 +94,7 @@ Security findings imported from the audit keep the audit's `overall_severity` (i
 W0 Stop the bleeding · W1 Integrity · W2 Scale and access · W3 User-facing defects · W4 Platform and hygiene · W5 Feature gaps. A wave is a priority band, not a schedule.
 
 ## Clusters
-Items that share code or a design decision. One planning run covers a cluster and writes a cluster overview plus one plan per item; each item is still approved individually. Name a cluster by the outcome ("Keep citizens out of the back office"), id in caps (`CITIZEN-ACCESS`). Standalone items have `cluster: ""` and can later be grouped into new clusters.
+Items that share code or a design decision. One planning run covers a cluster and writes a cluster overview plus one plan per item; each item is still approved individually. Name a cluster by the outcome ("Keep customers out of the admin area"), id in caps (`CUSTOMER-ACCESS`). Standalone items have `cluster: ""` and can later be grouped into new clusters.
 
 ## IDs
 `PREFIX-NN`: SEC (security), WF (workflow/engine), WEB (front end), BO (back office/admin UI), API, DATA, PERF, OPS, TOOL, TEST, DEBT, CAT (catalog/config), INT (integrations), PAY, FEAT (feature gaps). Get the next free id with `next-id PREFIX`; never reuse a retired id. Register rows and tracker items share one id space.

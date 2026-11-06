@@ -16,13 +16,13 @@ Goal: choose the layers that will find defects in *this* system, and know how to
    - roles, permissions, tenant and org boundaries, geographic or office scoping;
    - external versus internal users, anonymous access;
    - service tokens and token types (access, refresh, MFA, reset).
-4. **State machines:** entity statuses and their allowed transitions, workflow and process definitions (often configuration data: catalogs, BPMN, JSON graphs), payments, documents and certificates.
+4. **State machines:** entity statuses and their allowed transitions, workflow and process definitions (often configuration data: catalogs, BPMN, JSON graphs), payments, documents and issued records.
 5. **Configuration as code:**
    - catalogs, forms, reference lists, feature flags, production-safety checks;
    - mock or demo modes and how they are switched.
 6. **Existing tests:** frameworks, lanes, coverage, flakiness, and anything already pinned.
 7. **Load shape:**
-   - who files what, and how often;
+   - who submits what, and how often;
    - deadlines and peaks;
    - what grows without bound (history tables, audit logs, notifications).
 
@@ -33,13 +33,13 @@ Goal: choose the layers that will find defects in *this* system, and know how to
 | an HTTP API with roles or tenants | HTTP-AUTHZ (always) |
 | configurable workflows, approvals, multi-stage processes | SIMULATION |
 | concurrent human actors deciding on shared items | LOAD-LIFECYCLE (smoke at minimum) |
-| unbounded growth, national or large scale, deadlines | CAPACITY |
+| unbounded growth, large scale, deadlines | CAPACITY |
 | a browser UI with roles, or maps, canvas, or layout-heavy views | BROWSER-E2E |
 | an SPA calling the API | FRONTEND-CONTRACT |
 | any TypeScript, config catalogs, mock layers, a deploy stack | STATIC-SWEEPS (always; cheap) |
 
 Write `campaign/plan.md` with:
-- the layers and the targets per layer, e.g. "walk all 39 services × 5 paths", "smoke + stress profiles", "GIS, Jurisdiction and coverage maps in a real browser";
+- the layers and the targets per layer, e.g. "walk every process × 5 paths", "smoke + stress profiles", "the canvas-based views in a real browser";
 - the personas;
 - the environment (local Docker, hybrid);
 - what's out of scope;

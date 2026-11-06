@@ -25,14 +25,14 @@ test("stage order follows graph edges (multi-hop allowed)", () => {
 });
 
 test("decisions: wrong role and double decisions are caught", () => {
-  const base = { nodeId: "n", stageRoles: ["registrar"], actorUserId: "u", actorCanManage: false, action: "approve" };
-  assert.deepEqual(checkAuthorizedDecisions("e", [{ ...base, actorRoles: ["registrar"] }]), []);
-  assert.equal(checkAuthorizedDecisions("e", [{ ...base, actorRoles: ["clerk"] }]).length, 1);
+  const base = { nodeId: "n", stageRoles: ["approver"], actorUserId: "u", actorCanManage: false, action: "approve" };
+  assert.deepEqual(checkAuthorizedDecisions("e", [{ ...base, actorRoles: ["approver"] }]), []);
+  assert.equal(checkAuthorizedDecisions("e", [{ ...base, actorRoles: ["viewer"] }]).length, 1);
   assert.equal(checkSingleDecision("e", [{ nodeId: "n", visit: 1, action: "approve" }, { nodeId: "n", visit: 1, action: "reject" }]).length, 1);
 });
 
-test("integrity: double spend and certificate without approval", () => {
-  const v = checkIntegrity({ entityId: "e", finalStatus: "rejected", invoicesByNode: { pay: 2 }, paymentConsumptions: { p1: 2 }, certificates: 1 });
+test("integrity: double spend and issued document without approval", () => {
+  const v = checkIntegrity({ entityId: "e", finalStatus: "rejected", chargesByNode: { pay: 2 }, paymentConsumptions: { p1: 2 }, issuedDocuments: 1 });
   assert.equal(v.length, 3);
   assert.equal(summarize(v).integrity?.count, 3);
 });
@@ -42,8 +42,8 @@ test("ratchet: new and fixed entries both fail; partitionKnown matches invariant
   assert.throws(() => assertMatchesKnown(new Set(["x", "y"]), new Set(["x"]), "items"), /new items/);
   assert.throws(() => assertMatchesKnown(new Set([]), new Set(["x"]), "items"), /fixed items/);
   const { known, unknown } = partitionKnown(
-    [{ invariant: "integrity", detail: "payment p1 spent 2 times" }, { invariant: "integrity", detail: "2 certificates issued" }],
-    [{ invariant: "integrity", match: "spent", issue: "PAY-01" }],
+    [{ invariant: "integrity", detail: "payment p1 spent 2 times" }, { invariant: "integrity", detail: "2 documents issued" }],
+    [{ invariant: "integrity", match: "spent", issue: "ISSUE-01" }],
   );
   assert.equal(known.length, 1);
   assert.equal(unknown.length, 1);

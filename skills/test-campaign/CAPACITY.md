@@ -1,12 +1,12 @@
 # Layer · Capacity and growth
 
-The question is not "how fast is it today" but "does it still work at the size it will reach". In CMIS one process handled about 90 filings a second against a peak demand of 12.5 a second. The verdict was still **not fit as built**, because two endpoints rescanned all history on every request. Throughput tests on an empty database can't see that.
+The question is not "how fast is it today" but "does it still work at the size it will reach". A system can handle its peak request rate with room to spare and still be **not fit as built**, because an endpoint rescans all history on every request. Throughput tests on an empty database can't see that.
 
 ## 1. Demand model (write it down, with the assumptions)
-- Population: organisations and users, and filings per period (monthly, quarterly, annual).
+- Population: organisations and users, and submissions per period (monthly, quarterly, annual).
 - Concentration: the share of a period's work landing on the deadline day, the share of that day in the peak hour, and the burst factor (for example 30%, 15% and 3×).
 - Requests per business action (browse, form, upload, pay, submit, status), giving HTTP req/s at the burst.
-- Background readers, such as officers refreshing inboxes every N seconds.
+- Background readers, such as reviewers refreshing inboxes every N seconds.
 - Yearly accumulation: rows added per year to each growing table (history, audit, notifications).
 
 ## 2. Measurements

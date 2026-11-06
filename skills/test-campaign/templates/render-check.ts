@@ -1,8 +1,8 @@
 /**
  * Real-layout and real-pixel assertions for canvas/WebGL/layout-heavy UI —
- * what jsdom cannot see. Found CMIS's "every map is a blank white canvas".
+ * what jsdom cannot see.
  *
- *   await serveRecordedFixtures(context, "https://tiles.example.org/**", FIXTURES);
+ *   await serveRecordedFixtures(context, "https://assets.example.org/**", FIXTURES);
  *   await expectCanvasRenders(page.getByTestId("map"));
  */
 import { existsSync, readFileSync } from "node:fs";

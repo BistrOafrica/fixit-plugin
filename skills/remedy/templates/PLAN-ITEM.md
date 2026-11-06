@@ -2,6 +2,7 @@
 
 Severity **<critical|high|medium|low>** · Wave <W> · Cluster <CLUSTER> · Overview: [<CLUSTER>.md](<CLUSTER>.md) · Depends on <IDs or —>
 Planned <YYYY-MM-DD> · Status: plan review
+Risk: <security|auth|money|data-migration|mechanical|routine>
 
 ## Root cause
 <What happens, traced through the code with `path/file.ts:line` references. Name every consumer affected. Say what you reproduced and how, and what you ruled out.>
